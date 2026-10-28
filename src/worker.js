@@ -1,4 +1,4 @@
-const CMS_URL = "https://script.google.com/macros/s/AKfycbzDwPv-gE1G1CJtwnC46GeexJREP1OkOmaVmRP8TEjwTd7dPJdxMN-4vEAc0ucdC8t89A/exec";
+const CMS_URL = "https://script.google.com/macros/s/AKfycbzcywY7qmaiW9k0s8rWzIFeOj7Ok9FYOtJOQN7al8FQIUZm8J_GeEx-neVokGHDQ2zYOw/exec";
 export default { async fetch(request, env) {
   const url = new URL(request.url);
   if (url.pathname !== "/api/cms") return env.ASSETS.fetch(request);
