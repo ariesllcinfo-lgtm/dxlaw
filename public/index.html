@@ -104,6 +104,27 @@
     .work-more { margin-top:auto; padding-top:1.4rem; font-size:.78rem; color:#14213d; }
     .keyword-tag { font-family:"Noto Serif JP",serif; font-size:11px; padding:.25rem .625rem; background:#f2efe9; color:#14213d; border:1px solid #e2ddd5; }
     [hidden] { display:none !important; }
+
+    /* Research archive bookshelf */
+    .bookshelf { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:2rem 0; padding:1.5rem 1rem 2rem; background:linear-gradient(180deg,#f5f0e7,#ebe3d5); border:1px solid #d9cdbb; box-shadow:inset 0 2px 16px #493a2010; }
+    .shelf-slot { position:relative; display:flex; align-items:end; justify-content:center; padding:0 .65rem 18px; min-width:0; }
+    .shelf-slot::after { content:''; position:absolute; left:0; right:0; bottom:0; height:18px; background:linear-gradient(#a98f6f 0 20%,#80694e 23%,#594731 75%,#d1bda0 80%); box-shadow:0 8px 10px #382b1a35; }
+    .shelf-book { position:relative; display:flex; flex-direction:column; align-items:flex-start; width:100%; max-width:220px; min-height:300px; padding:1.55rem 1.2rem 1.2rem 1.55rem; text-align:left; color:#f9f5e9; border:1px solid #ffffff36; border-radius:2px 4px 4px 2px; background:#1b3048; box-shadow:inset 8px 0 9px #0004, inset -2px 0 2px #ffffff25, 5px 5px 10px #281b1455; transition:transform .2s,box-shadow .2s; overflow:hidden; }
+    .shelf-book::before { content:''; position:absolute; inset:9px 9px 9px 14px; border:1px solid #d1bb8666; pointer-events:none; }
+    .shelf-book:hover, .shelf-book:focus-visible { transform:translateY(-8px); box-shadow:inset 8px 0 9px #0004, 7px 14px 18px #281b1455; outline:2px solid #ad9566; outline-offset:3px; }
+    .cover-navy { background:linear-gradient(120deg,#192b40,#263e58); }
+    .cover-crimson { background:linear-gradient(120deg,#53262a,#793b3d); }
+    .cover-forest { background:linear-gradient(120deg,#273e38,#38564b); }
+    .cover-slate { background:linear-gradient(120deg,#363e48,#535c65); }
+    .shelf-series { font-size:.66rem; color:#e5d0a2; letter-spacing:.08em; line-height:1.5; position:relative; }
+    .shelf-rule { width:2.4rem; border-top:1px solid #cfb77e; margin:1rem 0; }
+    .shelf-title { font-family:"Noto Serif JP",serif; font-weight:600; font-size:1.04rem; line-height:1.65; overflow-wrap:anywhere; position:relative; }
+    .shelf-subtitle { margin-top:.65rem; font-family:"Noto Serif JP",serif; font-size:.7rem; line-height:1.65; color:#ede6d6; }
+    .shelf-author { margin-top:auto; padding-top:1.3rem; font-family:"Noto Serif JP",serif; font-size:.7rem; color:#e8d9b8; }
+    .shelf-open { margin-top:.65rem; font-size:.66rem; color:#e8d9b8; }
+    .shelf-empty { grid-column:1/-1; padding:2rem; text-align:center; color:#5c5143; }
+    @media(max-width:900px) { .bookshelf { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:420px) { .bookshelf { padding-left:.25rem; padding-right:.25rem; } .shelf-slot { padding-left:.35rem; padding-right:.35rem; } .shelf-book { min-height:280px; padding:1.4rem .9rem 1rem 1.2rem; } .shelf-title { font-size:.91rem; } }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -303,7 +324,7 @@
           </div>
         </div>
 
-        <div id="works-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+        <div id="works-grid" class="bookshelf">
           <div class="col-span-full py-12 text-center text-sm text-stone-400 font-serif">スプレッドシートから研究業績データを読み込んでいます...</div>
         </div>
       </section>
@@ -784,13 +805,26 @@
       const grid = document.getElementById('works-grid');
       const filtered = filterCategory === 'all' ? worksData : worksData.filter(w => String(w.category || '').toLowerCase() === filterCategory);
       grid.replaceChildren();
-      if (!filtered.length) { grid.textContent = '該当する研究業績はありません。'; return; }
+      if (!filtered.length) {
+        const message = document.createElement('p');
+        message.className = 'shelf-empty';
+        message.textContent = '該当する研究業績はありません。';
+        grid.append(message);
+        return;
+      }
       const textEl = (tag, cls, value) => { const el = document.createElement(tag); el.className = cls; el.textContent = value || ''; return el; };
-      filtered.forEach(w => {
+      const colors = ['navy', 'crimson', 'forest', 'slate'];
+      filtered.forEach((w, index) => {
+        const slot = document.createElement('div');
+        slot.className = 'shelf-slot';
         const card = document.createElement('button');
-        card.type = 'button'; card.className = 'work-card'; card.addEventListener('click', () => openWorkModal(w.id));
-        card.append(textEl('span', 'work-type', w.type || '研究'), textEl('h3', 'work-title', w.title), textEl('p', 'work-subtitle', w.subtitle), textEl('p', 'work-summary', w.abstract), textEl('span', 'work-more', '要旨・目次を見る →'));
-        grid.append(card);
+        card.type = 'button';
+        card.className = 'shelf-book cover-' + (colors.includes(String(w.coverStyle || '').toLowerCase()) ? String(w.coverStyle).toLowerCase() : colors[index % colors.length]);
+        card.setAttribute('aria-label', (w.title || '研究業績') + 'の要旨・目次を見る');
+        card.addEventListener('click', () => openWorkModal(w.id));
+        card.append(textEl('span', 'shelf-series', w.type || '研究'), textEl('span', 'shelf-rule', ''), textEl('span', 'shelf-title', w.title), textEl('span', 'shelf-subtitle', w.subtitle), textEl('span', 'shelf-author', w.author || '安藤 和樹'), textEl('span', 'shelf-open', '要旨・目次を見る  ↗'));
+        slot.append(card);
+        grid.append(slot);
       });
     }
 
