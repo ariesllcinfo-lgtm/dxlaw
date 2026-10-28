@@ -150,6 +150,39 @@
       .intro-hero { padding: 4rem 0 5rem; }
       .intro-hero h1 { font-size: 1.9rem; line-height: 1.65; }
     }
+
+    /* Editorial academic identity */
+    :root { --ink:#172b40; --muted:#687580; --brass:#a28b5e; --rule:#dcd6c8; }
+    body, .bg-paper-overlay { background:#fff; color:var(--ink); }
+    header { border-top:3px solid var(--ink); border-bottom:1px solid #dcd6ca !important; box-shadow:0 3px 18px rgba(23,43,64,.035); }
+    header > div:first-child { min-height:96px; }
+    .nav-link::after { background:var(--brass); }
+    .nav-link .text-academic-gold, #mobile-menu .text-academic-gold, main .text-academic-gold { color:#90784b !important; }
+    .intro-hero { position:relative; max-width:none; overflow:hidden; margin:1.5rem 0 6rem; padding:clamp(4rem,8vw,7rem) clamp(1.5rem,5vw,4.5rem); background:linear-gradient(115deg,#fff 0%,#fff 58%,#f8f6f1 100%); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+    .intro-hero::before { content:''; position:absolute; right:6%; top:12%; width:240px; height:240px; border:1px solid #b9aa8950; border-radius:50%; box-shadow:0 0 0 15px #b9aa8910, 0 0 0 16px #b9aa8930; pointer-events:none; }
+    .intro-hero::after { content:'LEX  ·  INFORMATIO'; position:absolute; right:6%; top:calc(12% + 112px); width:240px; text-align:center; font-family:"Cormorant Garamond",serif; font-size:.9rem; letter-spacing:.25em; color:#a79471; pointer-events:none; }
+    .intro-label { display:flex; align-items:center; gap:.8rem; color:#8e774f; font-family:"Noto Serif JP",serif; letter-spacing:.18em; }
+    .intro-label::before { content:''; width:2rem; height:1px; background:var(--brass); }
+    .intro-hero h1 { position:relative; z-index:1; color:var(--ink); font-weight:500; font-size:clamp(1.9rem,4.2vw,3.35rem); line-height:1.65; }
+    .intro-description { position:relative; z-index:1; max-width:37rem; color:#5c6266; }
+    .intro-links a { border-color:#aa9876; color:var(--ink); }
+    main section > .border-b-2 { border-bottom:1px solid #b7a886; padding-bottom:1rem; }
+    main section h2 { letter-spacing:.025em; }
+    .work-card { position:relative; border:1px solid #e5e0d7; border-top:3px solid #263b4e; background:#fff; padding:1.6rem; box-shadow:0 6px 20px rgba(32,42,49,.035); }
+    .work-card::after { content:''; position:absolute; top:0; right:1rem; width:2rem; height:2px; background:var(--brass); }
+    .work-card:hover { border-color:#b9aa8c; box-shadow:0 12px 26px rgba(32,42,49,.09); }
+    .work-type { color:#967e51; letter-spacing:.06em; }
+    .work-title,.work-more { color:var(--ink); }
+    #news-list { border-top:1px solid #ded8ce; }
+    #study-groups .space-y-4 > div { border-color:#e7e1d6; background:linear-gradient(110deg,#fff,#fbfaf7); }
+    .activity-section > div { border-color:#ddd5c7; box-shadow:0 8px 28px rgba(30,40,50,.06); }
+    #profile { border-color:#dcd4c4; box-shadow:0 8px 35px rgba(30,40,50,.04); }
+    #profile > .h-1 { height:3px; background:linear-gradient(90deg,#1c3349 0 23%,#a58b5e 23% 31%,#ded6c8 31%); }
+    #profile-themes { background:#faf9f6; border-color:#eae5db; }
+    .keyword-tag, #profile-keywords span { display:inline-block; font-family:"Noto Serif JP",serif; font-size:.7rem; line-height:1.5; color:#273b4b; padding:.35rem .65rem; background:#faf8f3; border:1px solid #e3dbca; }
+    footer { background:#faf9f6 !important; border-top:1px solid #ddd5c8 !important; }
+    footer .border-stone-800 { border-color:#dfd9ce !important; }
+    @media(max-width:767px) { .intro-hero { margin-top:1rem; margin-bottom:4rem; } .intro-hero::before { right:-105px; top:25%; opacity:.45; } .intro-hero::after { display:none; } }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -435,7 +468,7 @@
 
               <div class="pt-4 border-t border-stone-100">
                 <span class="font-en text-[11px] uppercase tracking-widest text-stone-400 block mb-2.5">Research Keywords</span>
-                <div class="flex flex-wrap gap-1.5">
+                <div id="profile-keywords" class="flex flex-wrap gap-1.5">
                   <span class="text-[11px] font-serif px-2.5 py-1 bg-academic-stone text-academic-navy border border-academic-line">記録型権利</span>
                   <span class="text-[11px] font-serif px-2.5 py-1 bg-academic-stone text-academic-navy border border-academic-line">有価証券振替制度</span>
                   <span class="text-[11px] font-serif px-2.5 py-1 bg-academic-stone text-academic-navy border border-academic-line">確定権限論</span>
@@ -674,6 +707,17 @@
             if (p[key] !== undefined && p[key] !== null && String(p[key]).trim() !== '') {
               document.getElementById(id).textContent = String(p[key]);
             }
+          }
+          if (Object.prototype.hasOwnProperty.call(p, 'keywords')) {
+            const values = Array.isArray(p.keywords) ? p.keywords : String(p.keywords ?? '').split(/[\n\r、,，]+/);
+            const target = document.getElementById('profile-keywords');
+            target.replaceChildren();
+            values.map(value => String(value).trim()).filter(Boolean).forEach(value => {
+              const tag = document.createElement('span');
+              tag.className = 'keyword-tag';
+              tag.textContent = value;
+              target.appendChild(tag);
+            });
           }
         }
 
