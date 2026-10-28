@@ -166,6 +166,16 @@
     .shelf-slot:nth-child(4n+2) .shelf-book { height:355px; min-height:355px; }
     .shelf-slot:nth-child(4n+3) .shelf-book { height:365px; min-height:365px; }
     @media(max-width:420px) { .shelf-slot:nth-child(4n+2) .shelf-book { height:325px; min-height:325px; } .shelf-slot:nth-child(4n+3) .shelf-book { height:335px; min-height:335px; } }
+
+    /* Grow the archive by adding shelves as books wrap. */
+    .bookshelf { flex-wrap:wrap; align-content:start; justify-content:flex-start; gap:0 2px; overflow:visible; padding:0 3rem; min-height:470px; background-size:100% 470px; background-repeat:repeat-y; background-position:top center; }
+    .shelf-slot { height:470px; padding:0 0 52px; align-items:flex-end; }
+    .shelf-empty { height:470px; display:flex; align-items:center; justify-content:center; }
+    @media(max-width:420px) {
+      .bookshelf { padding:0 1rem; min-height:420px; background-size:100% 420px; background-position:top center; }
+      .shelf-slot { height:420px; padding:0 0 45px; }
+      .shelf-empty { height:420px; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
