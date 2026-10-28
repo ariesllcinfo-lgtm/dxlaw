@@ -176,6 +176,10 @@
       .shelf-slot { height:420px; padding:0 0 45px; }
       .shelf-empty { height:420px; }
     }
+
+    /* Keep every book the same height. */
+    .shelf-slot:nth-child(n) .shelf-book { height:370px; min-height:370px; }
+    @media(max-width:420px) { .shelf-slot:nth-child(n) .shelf-book { height:340px; min-height:340px; } }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
