@@ -215,16 +215,16 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div class="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-stone-200 pb-6 lg:pb-0 lg:pr-8">
           <span class="font-en text-xs uppercase tracking-widest text-academic-gold font-semibold">Principal Investigator</span>
-          <h3 class="font-serif text-2xl font-bold text-stone-900 mt-1">安藤 和樹</h3>
-          <p class="font-en text-sm text-stone-500 italic mb-4">Kazuki Ando, LL.B.</p>
-          <p class="text-xs text-stone-600 leading-relaxed mb-4">
+          <h3 id="profile-name" class="font-serif text-2xl font-bold text-stone-900 mt-1">安藤 和樹</h3>
+          <p id="profile-name-en" class="font-en text-sm text-stone-500 italic mb-4">Kazuki Ando, LL.B.</p>
+          <p id="profile-description" class="text-xs text-stone-600 leading-relaxed mb-4 whitespace-pre-line">
             DX法研究会 / DX法学会 主宰。<br>
             専門は法情報学（Legal Informatics）、商法・有価証券法理、医療情報法制、計量法学。
           </p>
         </div>
         <div class="lg:col-span-8">
-          <h4 class="font-serif text-base font-bold text-academic-navy mb-3">研究関心・主要プロジェクト（Current Research Themes）</h4>
-          <p class="text-xs sm:text-sm text-stone-600 leading-relaxed mb-4">
+          <h4 id="profile-heading" class="font-serif text-base font-bold text-academic-navy mb-3">研究関心・主要プロジェクト（Current Research Themes）</h4>
+          <p id="profile-themes" class="text-xs sm:text-sm text-stone-600 leading-relaxed mb-4 whitespace-pre-line">
             有価証券のペーパーレス化（振替決済制度）から電子記録債権、不動産表示登記、さらには医療分野における診療報酬請求権の電子的確定に至るまで、現代社会における財産権・請求権は「物理的な紙（証券）」から「システム上の記録」へと移行しています。本研究会では、この現象を<strong>「権利の脱物質化（Dematerialization）」</strong>および<strong>「確定権限論」</strong>として理論化し、法情報学の見地から次世代の法秩序を構想しています。
           </p>
         </div>
@@ -269,6 +269,12 @@
         if (data.news && data.news.length) newsItems = data.news;
         if (data.works && data.works.length) worksData = data.works;
 
+        if (Array.isArray(data.profile) && data.profile[0]) {
+          const p = data.profile[0];
+          for (const [key, id] of Object.entries({ name: 'profile-name', nameEn: 'profile-name-en', description: 'profile-description', themesHeading: 'profile-heading', themes: 'profile-themes' })) {
+            if (p[key] !== undefined && p[key] !== null) document.getElementById(id).textContent = String(p[key]);
+          }
+        }
         currentSlide = 0;
         renderSlide();
         renderNews('all');
