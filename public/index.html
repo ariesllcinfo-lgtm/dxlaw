@@ -196,6 +196,22 @@
       .marginalia-keywords li { font-size:10px; line-height:1.8; padding:7px 0; border-top:1px solid #e3ddd3; }
       .marginalia-mark { margin-top:24px; font-family:"Cormorant Garamond",serif; font-size:22px; font-style:italic; color:#b6a17b; }
     }
+
+    /* Desktop side identity and section navigation */
+    .side-brand, .side-navigation { display:none; }
+    @media (min-width:1024px) {
+      .side-brand { display:flex; position:fixed; top:122px; left:24px; z-index:20; writing-mode:vertical-rl; gap:6px; font-family:"Cormorant Garamond",serif; color:#9a8c7c; line-height:1.2; }
+      .side-brand span { font-size:14px; letter-spacing:.04em; }
+      .side-brand small { font-size:11px; }
+      .side-navigation { display:flex; flex-direction:column; position:fixed; z-index:35; top:125px; right:16px; width:106px; background:#142b50; box-shadow:0 3px 12px #14213d22; }
+      .side-navigation a { min-height:76px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:12px 6px; border-bottom:1px solid #ffffff33; color:#fff; font-family:"Noto Serif JP",serif; transition:background .2s; }
+      .side-navigation a:last-child { border-bottom:0; }
+      .side-navigation a:hover,.side-navigation a:focus-visible { background:#2a4368; outline-offset:-3px; }
+      .side-navigation span { font-size:12px; font-weight:600; line-height:1.5; }
+      .side-navigation small { font-family:"Noto Sans JP",sans-serif; font-size:10px; line-height:1.3; margin-top:4px; font-weight:400; }
+      main.max-w-6xl { width:calc(100% - 180px); }
+      section[id] { scroll-margin-top:110px; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -296,25 +312,16 @@
     </header>
 
 
-    <aside class="desktop-marginalia left" aria-label="ページ内案内">
-      <span class="marginalia-label">Contents</span>
-      <nav class="marginalia-nav">
-        <a href="#works">研究業績</a>
-        <a href="#news">新着情報</a>
-        <a href="#study-groups">研究分科会</a>
-        <a href="#profile">研究会について</a>
-      </nav>
-      <p class="marginalia-mark" aria-hidden="true">DX / Law</p>
-    </aside>
-    <aside class="desktop-marginalia right" aria-label="研究領域">
-      <span class="marginalia-label">Research Focus</span>
-      <p class="marginalia-caption">記録と権利、<br>情報と法の交差点を<br>探究する。</p>
-      <ul class="marginalia-keywords">
-        <li>記録型権利</li>
-        <li>医療情報法制</li>
-        <li>法情報学</li>
-      </ul>
-    </aside>
+    <div class="side-brand" aria-hidden="true">
+      <span>DX Law Research Group</span>
+      <small>Research on Law &amp; Legal Informatics</small>
+    </div>
+    <nav class="side-navigation" aria-label="研究会のページ内ナビゲーション">
+      <a href="#works"><span>研究業績</span><small>Works</small></a>
+      <a href="#study-groups"><span>研究分科会</span><small>Study Groups</small></a>
+      <a href="#news"><span>新着情報</span><small>News</small></a>
+      <a href="#profile"><span>研究会について</span><small>Profile</small></a>
+    </nav>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-24 flex-1 w-full">
 
