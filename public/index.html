@@ -180,6 +180,22 @@
     /* Keep every book the same height. */
     .shelf-slot:nth-child(n) .shelf-book { height:370px; min-height:370px; }
     @media(max-width:420px) { .shelf-slot:nth-child(n) .shelf-book { height:340px; min-height:340px; } }
+
+    /* Wide-screen marginalia */
+    .desktop-marginalia { display:none; }
+    @media (min-width: 1500px) {
+      .desktop-marginalia { display:block; position:fixed; top:145px; z-index:20; width:min(164px,calc((100vw - 1152px)/2 - 42px)); font-family:"Noto Serif JP",serif; color:#536071; }
+      .desktop-marginalia.left { left:max(20px,calc((100vw - 1500px)/2 + 20px)); }
+      .desktop-marginalia.right { right:max(20px,calc((100vw - 1500px)/2 + 20px)); }
+      .marginalia-label { display:block; font-family:"Cormorant Garamond",serif; text-transform:uppercase; letter-spacing:.19em; font-size:11px; font-weight:600; color:#93794d; border-bottom:1px solid #cbbda4; padding-bottom:12px; margin-bottom:15px; }
+      .marginalia-nav { display:flex; flex-direction:column; }
+      .marginalia-nav a { font-size:11px; line-height:1.7; color:#435064; padding:9px 0; border-bottom:1px solid #e3ddd3; transition:color .2s; }
+      .marginalia-nav a:hover,.marginalia-nav a:focus-visible { color:#9a7b3e; text-decoration:underline; text-underline-offset:4px; }
+      .marginalia-caption { font-size:11px; line-height:2; color:#626b70; }
+      .marginalia-keywords { list-style:none; padding:0; margin:16px 0 0; }
+      .marginalia-keywords li { font-size:10px; line-height:1.8; padding:7px 0; border-top:1px solid #e3ddd3; }
+      .marginalia-mark { margin-top:24px; font-family:"Cormorant Garamond",serif; font-size:22px; font-style:italic; color:#b6a17b; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -278,6 +294,27 @@
         </a>
       </div>
     </header>
+
+
+    <aside class="desktop-marginalia left" aria-label="ページ内案内">
+      <span class="marginalia-label">Contents</span>
+      <nav class="marginalia-nav">
+        <a href="#works">研究業績</a>
+        <a href="#news">新着情報</a>
+        <a href="#study-groups">研究分科会</a>
+        <a href="#profile">研究会について</a>
+      </nav>
+      <p class="marginalia-mark" aria-hidden="true">DX / Law</p>
+    </aside>
+    <aside class="desktop-marginalia right" aria-label="研究領域">
+      <span class="marginalia-label">Research Focus</span>
+      <p class="marginalia-caption">記録と権利、<br>情報と法の交差点を<br>探究する。</p>
+      <ul class="marginalia-keywords">
+        <li>記録型権利</li>
+        <li>医療情報法制</li>
+        <li>法情報学</li>
+      </ul>
+    </aside>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-24 flex-1 w-full">
 
