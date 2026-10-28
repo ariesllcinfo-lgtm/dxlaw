@@ -125,6 +125,21 @@
     .shelf-empty { grid-column:1/-1; padding:2rem; text-align:center; color:#5c5143; }
     @media(max-width:900px) { .bookshelf { grid-template-columns:repeat(2,minmax(0,1fr)); } }
     @media(max-width:420px) { .bookshelf { padding-left:.25rem; padding-right:.25rem; } .shelf-slot { padding-left:.35rem; padding-right:.35rem; } .shelf-book { min-height:280px; padding:1.4rem .9rem 1rem 1.2rem; } .shelf-title { font-size:.91rem; } }
+
+    /* Vertical book spines on one continuous shelf */
+    .bookshelf { display:flex; flex-wrap:nowrap; align-items:flex-end; justify-content:flex-start; gap:2px; overflow-x:auto; overscroll-behavior-inline:contain; padding:2.5rem 1.5rem 24px; background:linear-gradient(to bottom,transparent calc(100% - 20px),#b29a78 calc(100% - 20px),#80694e calc(100% - 15px),#594731 calc(100% - 5px),#cbb495 100%),linear-gradient(180deg,#f5f0e7,#e9dfd0); border:1px solid #d9cdbb; box-shadow:inset 0 2px 16px #493a2010; }
+    .shelf-slot { flex:0 0 auto; display:flex; align-items:flex-end; padding:0; min-width:0; }
+    .shelf-slot::after { display:none; }
+    .shelf-book { display:flex; align-items:center; flex-direction:column; width:106px; min-width:106px; height:370px; min-height:370px; padding:18px 10px 15px; border-radius:3px 3px 0 0; box-shadow:inset 5px 0 8px #0005,inset -3px 0 5px #0004,2px 1px 5px #281b1450; }
+    .shelf-book::before { inset:7px 6px; border:1px solid #d1bb8666; }
+    .shelf-book:hover,.shelf-book:focus-visible { transform:translateY(-8px); }
+    .shelf-series { width:100%; text-align:center; font-size:.59rem; line-height:1.35; min-height:2.7em; letter-spacing:0; }
+    .shelf-rule { width:75%; margin:.45rem 0 .8rem; border-color:#cfb77e; }
+    .shelf-title { writing-mode:vertical-rl; text-orientation:mixed; font-size:1rem; line-height:1.5; letter-spacing:.08em; max-height:225px; max-width:75px; overflow:hidden; text-align:left; }
+    .shelf-subtitle,.shelf-open { display:none; }
+    .shelf-author { margin-top:auto; padding-top:.5rem; font-size:.61rem; text-align:center; line-height:1.3; }
+    .shelf-empty { flex:1 0 100%; }
+    @media(max-width:420px) { .bookshelf { padding:1.5rem 1rem 24px; } .shelf-slot { padding:0; } .shelf-book { width:95px; min-width:95px; height:340px; min-height:340px; padding:16px 9px 13px; } .shelf-title { font-size:.9rem; max-height:210px; } }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
