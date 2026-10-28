@@ -112,6 +112,44 @@
     .activity-section { max-width:760px; margin-left:auto; margin-right:auto; }
     .activity-section .aspect-\\[16\\/9\\] { max-height:260px; }
     [hidden] { display:none !important; }
+
+    /* White, understated academic layout */
+    body, .bg-paper-overlay { background: #fff; color: #253243; }
+    header { background: rgba(255,255,255,.97) !important; border-color: #e8edf1 !important; }
+    #mobile-menu { background: #fff !important; }
+    .nav-link::after { background-color: #274d72; }
+    .nav-link .text-academic-gold, #mobile-menu .text-academic-gold,
+    main .text-academic-gold { color: #58748d !important; }
+    ::-webkit-scrollbar-track { background: #f4f6f8; }
+    ::-webkit-scrollbar-thumb { background: #a9bac8; }
+    .intro-hero { max-width: 900px; padding: clamp(4.5rem, 10vw, 9rem) 0; }
+    .intro-label { color: #59758d; letter-spacing: .16em; }
+    .intro-hero h1 { color: #1c3146; font-weight: 500; letter-spacing: .035em; }
+    .intro-description { color: #556575; line-height: 2.1; }
+    .intro-links { gap: 2.2rem; color: #244b6a; }
+    .intro-links a { border-bottom-color: #b6c9d8; transition: color .2s, border-color .2s; }
+    .intro-links a:hover { color: #517e9c; border-color: #517e9c; }
+    main section > .border-b-2 { border-bottom-width: 1px; border-color: #b9cad6; }
+    .work-card { border: 1px solid #e1e8ed; border-top: 1px solid #e1e8ed; padding: 1.6rem; }
+    .work-card:hover { border-color: #aabfce; box-shadow: 0 8px 28px rgba(30,55,75,.07); }
+    .work-title, .work-more { color: #24435c; }
+    #news-list { border: 0; border-top: 1px solid #e1e8ed; padding-left: 0; padding-right: 0; box-shadow: none; }
+    #study-groups .space-y-4 > div { border-color: #e1e8ed; box-shadow: none; }
+    #study-groups .space-y-4 > div:hover { border-color: #aabfce; }
+    .activity-section > div { border-color: #e1e8ed; box-shadow: none; }
+    .activity-section > div > .absolute { display:none; }
+    #profile { border-color: #e1e8ed; box-shadow: none; }
+    #profile > .h-1 { height: 2px; background: #adc2d0; }
+    #profile-themes { background: #f7f9fa; border-color: #edf1f3; }
+    footer { background: #fff !important; border-top: 1px solid #dce5eb !important; color: #586a79 !important; }
+    footer .text-white { color: #253e54 !important; }
+    footer .text-academic-goldlight { color: #58748d !important; }
+    footer .border-stone-800 { border-color: #e5ebef !important; }
+    footer a:hover { color: #244b6a !important; }
+    @media (max-width: 640px) {
+      .intro-hero { padding: 4rem 0 5rem; }
+      .intro-hero h1 { font-size: 1.9rem; line-height: 1.65; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
