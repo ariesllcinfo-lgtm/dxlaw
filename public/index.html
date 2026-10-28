@@ -245,6 +245,14 @@
       .shelf-book { width:80px; min-width:80px; padding-left:7px; padding-right:7px; }
       .shelf-title { max-width:56px; }
     }
+
+    .back-to-top { position:fixed; right:22px; bottom:max(22px,env(safe-area-inset-bottom)); z-index:50; width:52px; height:52px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:3px; border:1px solid #bba779; border-radius:50%; background:#14213d; color:#f4e9d0; box-shadow:0 4px 16px #14213d33; cursor:pointer; opacity:0; visibility:hidden; transform:translateY(8px); transition:opacity .2s,transform .2s,visibility .2s,background .2s; }
+    .back-to-top.is-visible { opacity:1; visibility:visible; transform:translateY(0); }
+    .back-to-top:hover { background:#263c58; transform:translateY(-3px); }
+    .back-to-top:focus-visible { outline:3px solid #bba779; outline-offset:3px; }
+    .back-to-top span { font-family:"Cormorant Garamond",serif; font-size:9px; letter-spacing:.14em; line-height:1; }
+    @media(max-width:640px) { .back-to-top { width:48px; height:48px; right:16px; bottom:max(16px,env(safe-area-inset-bottom)); } }
+    @media(prefers-reduced-motion:reduce) { .back-to-top { transition:none; } }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -1106,6 +1114,20 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadFromGoogleSheets();
     });
+  </script>
+
+  <button id="back-to-top" class="back-to-top" type="button" aria-label="ページの先頭に戻る">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>TOP</span>
+  </button>
+  <script>
+    (() => {
+      const button = document.getElementById('back-to-top');
+      const update = () => button.classList.toggle('is-visible', window.scrollY > 300);
+      window.addEventListener('scroll', update, { passive: true });
+      button.addEventListener('click', () => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
+      update();
+    })();
   </script>
 </body>
 </html>
