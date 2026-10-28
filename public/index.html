@@ -214,6 +214,13 @@
     }
     .side-navigation a#contact-link svg { margin-bottom:6px; }
     .side-navigation a#contact-link { background:#1b365e; }
+
+    @media (min-width:1024px) {
+      .side-navigation a#contact-link { background:#f6f3ea; color:#334c45; padding:8px 4px 12px; border:1px solid #d8d7c9; }
+      .side-navigation a#contact-link:hover,.side-navigation a#contact-link:focus-visible { background:#e9eee1; }
+      .side-navigation a#contact-link .contact-post { display:block; width:84px; height:89px; margin:0 auto 2px; filter:drop-shadow(1px 3px 2px #1a261b26); }
+      .side-navigation a#contact-link small { color:#6c7b70; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -324,7 +331,19 @@
       <a href="#news"><span>新着情報</span><small>News</small></a>
       <a href="#profile"><span>研究会について</span><small>Profile</small></a>
       <a id="contact-link" hidden href="#" aria-label="メールでお問い合わせ">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"></rect><path d="m3 7 9 7 9-7"></path></svg>
+        <svg class="contact-post" viewBox="0 0 100 106" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <defs><clipPath id="post-front"><rect x="18" y="20" width="67" height="74" rx="3"/></clipPath></defs>
+          <path d="M15 21 L22 16 L86 16 L85 91 L79 96 L15 95 Z" fill="#b9c9cb" stroke="#738b8d" stroke-width="1.2"/>
+          <rect x="18" y="20" width="67" height="74" rx="3" fill="#d8e5c3" stroke="#98aa94" stroke-width="1.2"/>
+          <g clip-path="url(#post-front)" opacity=".8"><path d="M22 18v79 M27 18v79 M32 18v79 M72 18v79 M77 18v79 M82 18v79" stroke="#f6f4e9" stroke-width="3"/><path d="M35 18v79 M69 18v79" stroke="#c7dfdd" stroke-width="2"/></g>
+          <path d="M13 17 Q13 14 16 14 L86 14 Q89 14 89 17 L89 21 L13 21Z" fill="#f5f7f2" stroke="#95a9a7" stroke-width="1.2"/>
+          <rect x="37" y="29" width="31" height="4" rx="2" fill="#6b7c70"/>
+          <text x="51" y="45" text-anchor="middle" fill="#536559" font-family="Georgia,serif" font-size="7" letter-spacing="1">POST</text>
+          <rect x="35" y="58" width="33" height="23" rx="2" fill="#faf7eb" stroke="#728578" stroke-width="1"/>
+          <path d="M36 60 L51.5 71 L67 60" fill="none" stroke="#a0b2a2" stroke-width="1.2"/>
+          <circle cx="72" cy="55" r="4" fill="#c7665c"/><path d="M72 53.5v3 M70.5 55h3" stroke="#fff8ed" stroke-width=".7"/>
+          <path d="M20 94h64" stroke="#93a6a1" stroke-width="2"/>
+        </svg>
         <span>お問い合わせ</span><small>Contact</small>
       </a>
     </nav>
