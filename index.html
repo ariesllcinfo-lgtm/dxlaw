@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DX法研究会 | Research Group on DX Law and Legal Informatics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif JP"', 'serif'],
+            sans: ['"Noto Sans JP"', 'sans-serif'],
+            en: ['"Cormorant Garamond"', 'serif'],
+          },
+          colors: {
+            academic: {
+              navy: '#1B2A4A',
+              dark: '#0F172A',
+              crimson: '#7A1C1C',
+              gold: '#8C734B',
+              paper: '#FAF9F5',
+              stone: '#F3F1EC',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF9F5;
+      color: #1E293B;
+      font-feature-settings: "palt";
+    }
+    .book-spine {
+      box-shadow: inset 4px 0 8px rgba(0,0,0,0.18), inset -1px 0 2px rgba(255,255,255,0.3), 4px 6px 14px rgba(15, 23, 42, 0.12);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
+
+  <!-- CMS Connection Status Bar -->
+  <div class="bg-academic-dark text-stone-300 text-xs border-b border-stone-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 h-9 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span id="cms-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span id="cms-status-text" class="font-mono text-[11px]">Syncing with Google Sheets CMS...</span>
+        <span id="cms-updated-at" class="hidden sm:inline text-stone-500 font-mono text-[10px]"></span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="loadFromGoogleSheets()" class="hover:text-white transition flex items-center gap-1 text-[11px]">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          CMS再同期
+        </button>
+        <span class="text-stone-600">|</span>
+        <span class="text-[11px] text-stone-400">Headless CMS: Google Apps Script API</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-sm border-b border-stone-200/80">
+    <div class="max-w-6xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+      <a href="#" class="group flex flex-col">
+        <div class="flex items-baseline gap-3">
+          <span class="font-serif text-xl sm:text-2xl font-bold tracking-wider text-academic-navy">DX法研究会</span>
+          <span class="hidden md:inline-block text-xs text-stone-500 font-serif">主宰：安藤 和樹</span>
+        </div>
+        <span class="font-en text-xs sm:text-sm tracking-widest text-stone-500 italic">
+          Research Group on DX Law and Legal Informatics
+        </span>
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden lg:flex items-center space-x-7 text-sm">
+        <a href="#news" class="py-2 group flex flex-col items-center">
+          <span class="font-serif font-medium text-stone-800 group-hover:text-academic-navy transition">新着情報</span>
+          <span class="font-en text-[11px] tracking-wider text-stone-400">News</span>
+        </a>
+        <a href="#works" class="py-2 group flex flex-col items-center">
+          <span class="font-serif font-medium text-stone-800 group-hover:text-academic-navy transition">研究業績</span>
+          <span class="font-en text-[11px] tracking-wider text-stone-400">Works</span>
+        </a>
+        <a href="#study-groups" class="py-2 group flex flex-col items-center">
+          <span class="font-serif font-medium text-stone-800 group-hover:text-academic-navy transition">研究会</span>
+          <span class="font-en text-[11px] tracking-wider text-stone-400">Study Groups</span>
+        </a>
+        <a href="#profile" class="py-2 group flex flex-col items-center">
+          <span class="font-serif font-medium text-stone-800 group-hover:text-academic-navy transition">概要・代表</span>
+          <span class="font-en text-[11px] tracking-wider text-stone-400">Profile & CV</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-20">
+
+    <!-- Top Activity Slider -->
+    <section class="mb-14">
+      <div class="bg-white border border-stone-200 shadow-sm overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+          <div class="lg:col-span-8 relative bg-stone-900 aspect-[16/10] sm:aspect-[16/9] overflow-hidden">
+            <img id="slide-image" src="" alt="研究会活動風景" class="w-full h-full object-cover opacity-90 transition-all duration-700">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white">
+              <span id="slide-counter" class="font-en text-sm tracking-widest bg-black/50 px-3 py-1 backdrop-blur-sm">01 / 04</span>
+              <div class="flex gap-1.5">
+                <button onclick="prevSlide()" class="p-2 bg-black/50 hover:bg-academic-navy transition backdrop-blur-sm" aria-label="前へ">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button onclick="nextSlide()" class="p-2 bg-black/50 hover:bg-academic-navy transition backdrop-blur-sm" aria-label="次へ">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 p-6 sm:p-8 flex flex-col justify-between bg-white border-t lg:border-t-0 lg:border-l border-stone-200">
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <span id="slide-tag" class="text-[11px] font-medium tracking-wider uppercase px-2.5 py-0.5 bg-academic-stone text-academic-navy border border-stone-300">Loading...</span>
+                <span id="slide-date" class="font-en text-sm text-stone-500"></span>
+              </div>
+              <h2 id="slide-title" class="font-serif text-lg sm:text-xl font-semibold text-stone-900 leading-snug mb-4">データ取得中...</h2>
+              <p id="slide-desc" class="text-sm text-stone-600 leading-relaxed"></p>
+            </div>
+            <div class="mt-6 pt-5 border-t border-stone-100">
+              <div id="slide-dots" class="flex gap-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Epigraph -->
+    <section class="my-16 py-10 px-6 sm:px-12 bg-academic-stone/60 border-y border-stone-200/90 text-center">
+      <div class="max-w-3xl mx-auto">
+        <p class="font-serif text-base sm:text-lg md:text-xl text-stone-800 leading-loose tracking-wide">
+          紙から記録へ、物理から情報へ。<br class="hidden sm:inline">
+          脱物質化する社会における「権利の帰属点」と「確定の法理」を探究する。
+        </p>
+        <p class="mt-3 font-en text-sm sm:text-base italic text-stone-500 tracking-wider">
+          "Ubi ius, ibi remedium — In the age of dematerialized rights, the attribution point defines the legal order."
+        </p>
+      </div>
+    </section>
+
+    <!-- Two Column Section: News & Study Groups -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
+      <!-- News -->
+      <section id="news" class="lg:col-span-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3 mb-6 gap-3">
+          <div class="flex items-baseline gap-3">
+            <h2 class="font-serif text-2xl font-bold text-academic-navy">News</h2>
+            <span class="text-xs text-stone-500 font-serif">新着情報・活動報告</span>
+          </div>
+          <div class="flex flex-wrap gap-1.5 text-xs">
+            <button onclick="filterNews('all')" data-filter="all" class="news-filter-btn px-3 py-1 rounded-sm bg-academic-navy text-white font-medium transition">All</button>
+            <button onclick="filterNews('Publications')" data-filter="Publications" class="news-filter-btn px-3 py-1 rounded-sm bg-stone-200/70 text-stone-700 hover:bg-stone-300 transition">Publications</button>
+            <button onclick="filterNews('Activity')" data-filter="Activity" class="news-filter-btn px-3 py-1 rounded-sm bg-stone-200/70 text-stone-700 hover:bg-stone-300 transition">Activity</button>
+            <button onclick="filterNews('Note')" data-filter="Note" class="news-filter-btn px-3 py-1 rounded-sm bg-stone-200/70 text-stone-700 hover:bg-stone-300 transition">Note</button>
+          </div>
+        </div>
+        <div id="news-list" class="divide-y divide-stone-200/80">
+          <div class="py-8 text-center text-sm text-stone-400">スプレッドシートから新着情報を読み込んでいます...</div>
+        </div>
+      </section>
+
+      <!-- Study Groups -->
+      <section id="study-groups" class="lg:col-span-4">
+        <div class="flex items-baseline gap-3 border-b-2 border-academic-navy pb-3 mb-6">
+          <h2 class="font-serif text-2xl font-bold text-academic-navy">Study Groups</h2>
+          <span class="text-xs text-stone-500 font-serif">研究分科会</span>
+        </div>
+        <div class="space-y-4">
+          <div class="bg-white p-5 border border-stone-200 shadow-sm">
+            <span class="text-[11px] font-en uppercase tracking-widest text-academic-gold font-semibold">Division 01</span>
+            <h3 class="font-serif font-bold text-base text-stone-900 mt-0.5 mb-2">記録型権利・確定権限論部会</h3>
+            <p class="text-xs text-stone-600 leading-relaxed">有価証券振替決済制度、不動産登記、電子記録債権など、権利の脱物質化と「帰属点」の法理を比較法・歴史的視点から検証します。</p>
+          </div>
+          <div class="bg-white p-5 border border-stone-200 shadow-sm">
+            <span class="text-[11px] font-en uppercase tracking-widest text-academic-gold font-semibold">Division 02</span>
+            <h3 class="font-serif font-bold text-base text-stone-900 mt-0.5 mb-2">医療DX・データヘルス法制部会</h3>
+            <p class="text-xs text-stone-600 leading-relaxed">診療報酬請求権の法的構造、AI審査アルゴリズムと審査委員会（医師・歯科医師）の専門的裁量権の境界、医療情報基盤を研究します。</p>
+          </div>
+          <div class="bg-white p-5 border border-stone-200 shadow-sm">
+            <span class="text-[11px] font-en uppercase tracking-widest text-academic-gold font-semibold">Division 03</span>
+            <h3 class="font-serif font-bold text-base text-stone-900 mt-0.5 mb-2">AIガバナンス・計量法学部会</h3>
+            <p class="text-xs text-stone-600 leading-relaxed">OpenAlex / Semantic Scholar APIを用いた法学引用ネットワーク分析、およびフィジカルAI・半導体サプライチェーンの法経済学を扱います。</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Works Section -->
+    <section id="works" class="mb-20">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3 mb-8 gap-3">
+        <div class="flex items-baseline gap-3">
+          <h2 class="font-serif text-2xl font-bold text-academic-navy">New Publications & Featured Works</h2>
+          <span class="text-xs text-stone-500 font-serif">主要研究業績・モノグラフ（クリックで要旨・目次・本文を表示）</span>
+        </div>
+      </div>
+      <div id="works-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="col-span-full py-12 text-center text-sm text-stone-400">スプレッドシートから研究業績データを読み込んでいます...</div>
+      </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="profile" class="bg-white border border-stone-200 p-6 sm:p-10 shadow-sm">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-stone-200 pb-6 lg:pb-0 lg:pr-8">
+          <span class="font-en text-xs uppercase tracking-widest text-academic-gold font-semibold">Principal Investigator</span>
+          <h3 class="font-serif text-2xl font-bold text-stone-900 mt-1">安藤 和樹</h3>
+          <p class="font-en text-sm text-stone-500 italic mb-4">Kazuki Ando, LL.B.</p>
+          <p class="text-xs text-stone-600 leading-relaxed mb-4">
+            DX法研究会 / DX法学会 主宰。<br>
+            専門は法情報学（Legal Informatics）、商法・有価証券法理、医療情報法制、計量法学。
+          </p>
+        </div>
+        <div class="lg:col-span-8">
+          <h4 class="font-serif text-base font-bold text-academic-navy mb-3">研究関心・主要プロジェクト（Current Research Themes）</h4>
+          <p class="text-xs sm:text-sm text-stone-600 leading-relaxed mb-4">
+            有価証券のペーパーレス化（振替決済制度）から電子記録債権、不動産表示登記、さらには医療分野における診療報酬請求権の電子的確定に至るまで、現代社会における財産権・請求権は「物理的な紙（証券）」から「システム上の記録」へと移行しています。本研究会では、この現象を<strong>「権利の脱物質化（Dematerialization）」</strong>および<strong>「確定権限論」</strong>として理論化し、法情報学の見地から次世代の法秩序を構想しています。
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal for Work Details -->
+  <div id="work-modal" class="fixed inset-0 z-50 hidden bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[#FAF9F5] border border-stone-300 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl p-6 sm:p-8 relative">
+      <button onclick="closeModal()" class="absolute top-5 right-5 text-stone-400 hover:text-stone-800 p-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    // ★デプロイされたご自身のGAS APIエンドポイント
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzDwPv-gE1G1CJtwnC46GeexJREP1OkOmaVmRP8TEjwTd7dPJdxMN-4vEAc0ucdC8t89A/exec';
+
+    // フォールバック用初期データ（万が一オフライン等の場合でも表示を保証）
+    let slides = [];
+    let newsItems = [];
+    let worksData = [];
+    let currentSlide = 0;
+
+    async function loadFromGoogleSheets() {
+      const dot = document.getElementById('cms-status-dot');
+      const text = document.getElementById('cms-status-text');
+      const updatedEl = document.getElementById('cms-updated-at');
+
+      dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+      text.textContent = 'Syncing with Google Sheets CMS...';
+
+      try {
+        const res = await fetch(GAS_API_URL, { redirect: 'follow' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (data.slides && data.slides.length) slides = data.slides;
+        if (data.news && data.news.length) newsItems = data.news;
+        if (data.works && data.works.length) worksData = data.works;
+
+        currentSlide = 0;
+        renderSlide();
+        renderNews('all');
+        renderWorks('all');
+
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        text.textContent = 'Connected to Google Sheets CMS';
+        if (data.updatedAt) {
+          const d = new Date(data.updatedAt);
+          updatedEl.textContent = `(取得: ${d.toLocaleTimeString('ja-JP')})`;
+        }
+      } catch (err) {
+        console.error('CMS Fetch Error:', err);
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        text.textContent = 'CMS Connection Error (スプレッドシートで setupInitialDatabase を実行してください)';
+      }
+    }
+
+    function renderSlide() {
+      if (!slides.length) return;
+      const s = slides[currentSlide];
+      document.getElementById('slide-image').src = s.image || '';
+      document.getElementById('slide-tag').textContent = s.tag || '';
+      document.getElementById('slide-date').textContent = s.date || '';
+      document.getElementById('slide-title').textContent = s.title || '';
+      document.getElementById('slide-desc').textContent = s.description || '';
+      document.getElementById('slide-counter').textContent = `0${currentSlide + 1} / 0${slides.length}`;
+
+      const dotsContainer = document.getElementById('slide-dots');
+      dotsContainer.innerHTML = slides.map((_, idx) => `
+        <button onclick="goToSlide(${idx})" class="h-1.5 transition-all ${idx === currentSlide ? 'w-8 bg-academic-navy' : 'w-2 bg-stone-300 hover:bg-stone-400'}" aria-label="スライド ${idx + 1}"></button>
+      `).join('');
+    }
+
+    function nextSlide() {
+      if (!slides.length) return;
+      currentSlide = (currentSlide + 1) % slides.length;
+      renderSlide();
+    }
+
+    function prevSlide() {
+      if (!slides.length) return;
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      renderSlide();
+    }
+
+    function goToSlide(idx) {
+      currentSlide = idx;
+      renderSlide();
+    }
+
+    function renderNews(filterCategory = 'all') {
+      const list = document.getElementById('news-list');
+      const filtered = filterCategory === 'all'
+        ? newsItems
+        : newsItems.filter(item => item.category === filterCategory);
+
+      if (!filtered.length) {
+        list.innerHTML = `<div class="py-6 text-sm text-stone-400">該当する新着情報はありません。</div>`;
+        return;
+      }
+
+      const badgeStyles = {
+        Publications: 'bg-academic-navy/10 text-academic-navy border-academic-navy/20',
+        Activity: 'bg-emerald-900/10 text-emerald-800 border-emerald-800/20',
+        Note: 'bg-amber-900/10 text-amber-900 border-amber-800/20'
+      };
+
+      list.innerHTML = filtered.map(item => {
+        const rawDate = String(item.date || '');
+        return `
+        <div class="py-4 flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-5 group">
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="font-mono text-xs text-stone-500 w-20">${rawDate}</span>
+            <span class="text-[11px] font-medium px-2 py-0.5 rounded-xs border ${badgeStyles[item.category] || 'bg-stone-100 text-stone-700'} w-24 text-center">
+              ${item.category}
+            </span>
+          </div>
+          <div class="flex-1">
+            ${item.workId ? `
+              <button onclick="openWorkModal('${item.workId}')" class="text-left text-sm text-stone-800 group-hover:text-academic-navy transition leading-relaxed hover:underline">
+                ${item.title}
+              </button>
+            ` : `
+              <p class="text-sm text-stone-800 leading-relaxed">${item.title}</p>
+            `}
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function filterNews(category) {
+      document.querySelectorAll('.news-filter-btn').forEach(btn => {
+        if (btn.dataset.filter === category) {
+          btn.className = 'news-filter-btn px-3 py-1 rounded-sm bg-academic-navy text-white font-medium transition';
+        } else {
+          btn.className = 'news-filter-btn px-3 py-1 rounded-sm bg-stone-200/70 text-stone-700 hover:bg-stone-300 transition';
+        }
+      });
+      renderNews(category);
+    }
+
+    function renderWorks() {
+      const grid = document.getElementById('works-grid');
+      if (!worksData.length) {
+        grid.innerHTML = `<div class="col-span-full py-8 text-sm text-stone-400">業績データがありません。</div>`;
+        return;
+      }
+
+      const coverColors = {
+        navy: 'bg-[#1B2A4A] text-stone-100 border-[#121D35]',
+        crimson: 'bg-[#5C1D24] text-stone-100 border-[#421318]',
+        slate: 'bg-[#2C353D] text-stone-100 border-[#1E242B]',
+        forest: 'bg-[#1F3A33] text-stone-100 border-[#152823]'
+      };
+
+      grid.innerHTML = worksData.map(w => {
+        const tocList = Array.isArray(w.toc) ? w.toc : String(w.toc || '').split('\n').filter(Boolean);
+        return `
+        <div onclick="openWorkModal('${w.id}')" class="cursor-pointer group bg-white border border-stone-200 p-5 flex flex-col justify-between hover:border-academic-navy transition shadow-xs hover:shadow-md">
+          <div>
+            <div class="book-spine ${coverColors[w.coverStyle] || coverColors.navy} aspect-[3/4] p-5 mb-4 flex flex-col justify-between relative overflow-hidden transition-transform duration-300 group-hover:-translate-y-1">
+              <div class="border-b border-white/20 pb-2 flex justify-between items-center">
+                <span class="font-en text-[10px] tracking-widest uppercase opacity-75">DX Law Monograph</span>
+                <span class="text-[10px] opacity-75">${w.type}</span>
+              </div>
+              <div class="my-auto py-2">
+                <div class="bg-[#FAF9F5] text-stone-900 p-3.5 shadow-inner border border-stone-300">
+                  <h3 class="font-serif font-bold text-sm leading-snug mb-1.5">${w.title}</h3>
+                  <p class="font-serif text-[11px] text-stone-600 leading-tight">${w.subtitle}</p>
+                </div>
+              </div>
+              <div class="pt-2 border-t border-white/20 flex items-center justify-between text-[11px] font-serif opacity-90">
+                <span>${w.author}</span>
+                <span class="font-en text-[10px]">DXL Press</span>
+              </div>
+            </div>
+            <div class="text-xs text-stone-500 mb-1">${w.date} ・ ${w.pages}</div>
+            <h4 class="font-serif font-bold text-sm text-stone-900 group-hover:text-academic-navy transition leading-snug mb-1">${w.title}</h4>
+            <p class="text-xs text-stone-500 mb-3">${w.publisher}</p>
+          </div>
+          <div class="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-academic-navy font-medium">
+            <span>要旨・目次（全${tocList.length}節）</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function openWorkModal(workId) {
+      const w = worksData.find(item => item.id === workId);
+      if (!w) return;
+      const tocList = Array.isArray(w.toc) ? w.toc : String(w.toc || '').split('\n').filter(Boolean);
+
+      const content = document.getElementById('modal-content');
+      content.innerHTML = `
+        <div class="border-b border-stone-200 pb-4 mb-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-medium px-2.5 py-0.5 bg-academic-navy text-white">${w.type}</span>
+            <span class="text-xs text-stone-500">${w.date} | ${w.pages}</span>
+          </div>
+          <h3 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 leading-snug">${w.title}</h3>
+          <p class="font-serif text-sm text-stone-600 mt-1">${w.subtitle}</p>
+          <p class="text-xs text-stone-500 mt-2">${w.author} — ${w.publisher}</p>
+        </div>
+        <div class="mb-6">
+          <h4 class="font-serif text-xs font-bold uppercase tracking-wider text-academic-navy mb-2">要旨 / Abstract</h4>
+          <p class="text-sm text-stone-700 leading-relaxed bg-white p-4 border border-stone-200">${w.abstract}</p>
+        </div>
+        <div class="mb-6">
+          <h4 class="font-serif text-xs font-bold uppercase tracking-wider text-academic-navy mb-2">構成・目次 / Table of Contents</h4>
+          <ul class="bg-white border border-stone-200 divide-y divide-stone-100 text-xs sm:text-sm text-stone-700">
+            ${tocList.map(line => `<li class="px-4 py-2.5 font-serif">${line}</li>`).join('')}
+          </ul>
+        </div>
+        ${w.bodyText ? `
+        <div class="mb-6">
+          <h4 class="font-serif text-xs font-bold uppercase tracking-wider text-academic-navy mb-2">本文（Googleドキュメント連携） / Full Text</h4>
+          <div class="text-sm text-stone-800 leading-relaxed bg-white p-5 border border-stone-200 whitespace-pre-wrap font-serif">${w.bodyText}</div>
+        </div>
+        ` : ''}
+        <div class="flex justify-end">
+          <button onclick="closeModal()" class="px-5 py-2 text-xs font-medium bg-stone-200 text-stone-800 hover:bg-stone-300 transition">閉じる</button>
+        </div>
+      `;
+      document.getElementById('work-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('work-modal').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFromGoogleSheets();
+    });
+  </script>
+</body>
+</html>
