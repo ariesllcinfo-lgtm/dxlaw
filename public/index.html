@@ -226,6 +226,17 @@
     #contact-link:hover .post-flap, #contact-link:focus-visible .post-flap { transform:scaleY(.2) translateY(-4px); }
     @media (prefers-reduced-motion:reduce) { .post-flap { transition:none; } }
     @media (min-width:1024px) { .side-navigation a#contact-link .contact-post { height:106px; } }
+
+    .side-destinations { display:none; }
+    @media (min-width:1024px) {
+      body.has-destinations .side-brand { display:none; }
+      .side-destinations:not([hidden]) { display:flex; flex-direction:column; position:fixed; top:125px; left:16px; z-index:35; width:106px; padding:10px 7px; background:#f5f0e6; border:1px solid #d9cdb9; box-shadow:0 3px 12px #14213d18; }
+      .destinations-label { padding:0 0 8px; text-align:center; font-family:"Noto Serif JP",serif; color:#8b724b; font-size:10px; letter-spacing:.16em; }
+      .side-destinations a:not([hidden]) { display:flex; min-height:78px; flex-direction:column; align-items:center; justify-content:center; padding:7px 3px; border-top:1px solid #ded5c6; color:#283950; text-align:center; font-family:"Noto Serif JP",serif; font-size:11px; transition:background .2s; }
+      .side-destinations a:hover,.side-destinations a:focus-visible { background:#e9e1d3; }
+      .side-destinations small { color:#81735f; font-family:"Cormorant Garamond",serif; font-size:11px; }
+      .destination-icon { color:#9a7b3e; font-family:serif; font-size:20px; line-height:1.2; margin-bottom:3px; }
+    }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -330,6 +341,18 @@
       <span>DX Law Research Group</span>
       <small>Research on Law &amp; Legal Informatics</small>
     </div>
+    <nav id="side-destinations" class="side-destinations" aria-label="関連サイト" hidden>
+      <span class="destinations-label">寄り道</span>
+      <a id="destination-creative" hidden target="_blank" rel="noopener noreferrer">
+        <span class="destination-icon" aria-hidden="true">✎</span><span>創作室</span><small>Creative</small>
+      </a>
+      <a id="destination-jazz" hidden target="_blank" rel="noopener noreferrer">
+        <span class="destination-icon" aria-hidden="true">♪</span><span>Jazz Bar</span><small>音楽</small>
+      </a>
+      <a id="destination-cafe" hidden target="_blank" rel="noopener noreferrer">
+        <span class="destination-icon" aria-hidden="true">☕</span><span>喫茶室</span><small>Café</small>
+      </a>
+    </nav>
     <nav class="side-navigation" aria-label="研究会のページ内ナビゲーション">
       <a href="#works"><span>研究業績</span><small>Works</small></a>
       <a href="#study-groups"><span>研究分科会</span><small>Study Groups</small></a>
@@ -799,6 +822,27 @@
               document.getElementById(id).textContent = String(p[key]);
             }
           }
+
+          let destinationCount = 0;
+          for (const [key, id] of Object.entries({
+            creativeUrl: 'destination-creative',
+            jazzUrl: 'destination-jazz',
+            cafeUrl: 'destination-cafe'
+          })) {
+            const link = document.getElementById(id);
+            try {
+              const url = new URL(String(p[key] || '').trim());
+              if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Unsupported URL');
+              link.href = url.href;
+              link.hidden = false;
+              destinationCount++;
+            } catch (_) {
+              link.hidden = true;
+              link.removeAttribute('href');
+            }
+          }
+          document.getElementById('side-destinations').hidden = destinationCount === 0;
+          document.body.classList.toggle('has-destinations', destinationCount > 0);
           const contact = document.getElementById('contact-link');
           const email = String(p.contactEmail || '').trim();
           if (/^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(email)) {
