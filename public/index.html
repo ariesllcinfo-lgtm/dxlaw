@@ -634,18 +634,18 @@
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="p-4 border border-academic-line bg-white">
                   <span class="font-en text-xs italic text-academic-gold">Pillar I</span>
-                  <h5 class="font-serif font-bold text-xs sm:text-sm text-academic-navy mt-0.5 mb-1.5">帰属点の法理</h5>
-                  <p class="text-[11px] text-stone-500 leading-relaxed">紙の占有から台帳の記録へ移行した財産権の静的安全と動的安全の再構築。</p>
+                  <h5 id="pillar-1-title" class="font-serif font-bold text-xs sm:text-sm text-academic-navy mt-0.5 mb-1.5">帰属点の法理</h5>
+                  <p id="pillar-1-description" class="text-[11px] text-stone-500 leading-relaxed">紙の占有から台帳の記録へ移行した財産権の静的安全と動的安全の再構築。</p>
                 </div>
                 <div class="p-4 border border-academic-line bg-white">
                   <span class="font-en text-xs italic text-academic-gold">Pillar II</span>
-                  <h5 class="font-serif font-bold text-xs sm:text-sm text-academic-navy mt-0.5 mb-1.5">確定権限の配分</h5>
-                  <p class="text-[11px] text-stone-500 leading-relaxed">AIアルゴリズムによる自動処理と、専門職・審査機関の裁量権の法的境界。</p>
+                  <h5 id="pillar-2-title" class="font-serif font-bold text-xs sm:text-sm text-academic-navy mt-0.5 mb-1.5">確定権限の配分</h5>
+                  <p id="pillar-2-description" class="text-[11px] text-stone-500 leading-relaxed">AIアルゴリズムによる自動処理と、専門職・審査機関の裁量権の法的境界。</p>
                 </div>
                 <div class="p-4 border border-academic-line bg-white">
                   <span class="font-en text-xs italic text-academic-gold">Pillar III</span>
-                  <h5 class="font-serif font-bold text-xs sm:text-sm text-academic-navy mt-0.5 mb-1.5">物理インフラと法経済</h5>
-                  <p class="text-[11px] text-stone-500 leading-relaxed">半導体・電力網・医療データ基盤をめぐる経済安全保障とルール形成。</p>
+                  <h5 id="pillar-3-title" class="font-serif font-bold text-xs sm:text-sm text-academic-navy mt-0.5 mb-1.5">物理インフラと法経済</h5>
+                  <p id="pillar-3-description" class="text-[11px] text-stone-500 leading-relaxed">半導体・電力網・医療データ基盤をめぐる経済安全保障とルール形成。</p>
                 </div>
               </div>
             </div>
@@ -858,6 +858,16 @@
           })) {
             if (p[key] !== undefined && p[key] !== null && String(p[key]).trim() !== '') {
               document.getElementById(id).textContent = String(p[key]);
+            }
+          }
+
+          // Pillar text is editable in the profile sheet; keep the existing text as fallback.
+          for (let i = 1; i <= 3; i++) {
+            for (const [suffix, elementSuffix] of [['Title', 'title'], ['Description', 'description']]) {
+              const value = p['pillar' + i + suffix];
+              if (value !== undefined && value !== null && String(value).trim() !== '') {
+                document.getElementById('pillar-' + i + '-' + elementSuffix).textContent = String(value);
+              }
             }
           }
 
