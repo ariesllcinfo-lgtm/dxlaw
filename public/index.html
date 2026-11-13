@@ -279,11 +279,11 @@
             <span id="cms-status-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
             <span id="cms-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
           </span>
-          <span id="cms-status-text" class="font-mono text-[11px] tracking-tight text-stone-300">Syncing with Google Sheets CMS...</span>
+          <span id="cms-status-text" class="font-mono text-[11px] tracking-tight text-stone-300">Syncing with Notion CMS...</span>
           <span id="cms-updated-at" class="hidden md:inline text-stone-500 font-mono text-[10px]"></span>
         </div>
         <div class="flex items-center gap-4">
-          <button onclick="loadFromGoogleSheets()" class="hover:text-academic-goldlight transition flex items-center gap-1.5 text-[11px] font-mono tracking-tight group">
+          <button onclick="loadFromNotion()" class="hover:text-academic-goldlight transition flex items-center gap-1.5 text-[11px] font-mono tracking-tight group">
             <svg class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             <span>SYNC CMS</span>
           </button>
@@ -719,7 +719,6 @@
   <script>
     // ★プライマリエンドポイント（プロキシ設定済みの /api/cms）と、直接通信用のバックアップGAS URL
     const GAS_API_URL = '/api/cms';
-    const DIRECT_GAS_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbzDwPv-gE1G1CJtwnC46GeexJREP1OkOmaVmRP8TEjwTd7dPJdxMN-4vEAc0ucdC8t89A/exec';
 
     // ローカルプレビュー・オフライン時でも画面を美しく保つフォールバックデータ
     const FALLBACK_DATA = {
@@ -819,18 +818,12 @@
     }
 
     async function fetchCMSWithFallback() {
-      try {
-        const res = await fetch(GAS_API_URL, { redirect: 'follow' });
-        if (res.ok) return await res.json();
-      } catch (_) {
-        // /api/cms が未構成（ローカル環境等）の場合は直接GASエンドポイントを試行
-      }
-      const backupRes = await fetch(DIRECT_GAS_BACKUP_URL, { redirect: 'follow' });
-      if (!backupRes.ok) throw new Error(`HTTP ${backupRes.status}`);
-      return await backupRes.json();
+      const res = await fetch(GAS_API_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
     }
 
-    async function loadFromGoogleSheets() {
+    async function loadFromNotion() {
       const dot = document.getElementById('cms-status-dot');
       const ping = document.getElementById('cms-status-ping');
       const text = document.getElementById('cms-status-text');
@@ -838,7 +831,7 @@
 
       dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-amber-400';
       ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75';
-      text.textContent = 'Syncing with Google Sheets CMS...';
+      text.textContent = 'Syncing with Notion CMS...';
 
       try {
         const data = await fetchCMSWithFallback();
@@ -921,7 +914,7 @@
 
         dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-emerald-400';
         ping.className = 'hidden';
-        text.textContent = 'Connected to Google Sheets CMS';
+        text.textContent = 'Connected to Notion CMS';
         if (data.updatedAt) {
           const d = new Date(data.updatedAt);
           updatedEl.textContent = `Last Synced: ${d.toLocaleTimeString('ja-JP')}`;
@@ -1144,7 +1137,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadFromGoogleSheets();
+      loadFromNotion();
     });
   </script>
 
