@@ -329,7 +329,7 @@
             <span class="font-serif font-medium text-stone-800 group-hover:text-academic-navy transition">研究業績</span>
             <span class="font-en text-[11px] tracking-[0.18em] uppercase text-academic-gold">Works</span>
           </a>
-          <a href="#study-groups" class="nav-link py-2 flex flex-col items-center group">
+          <a href="#study-groups" hidden class="nav-link py-2 flex flex-col items-center group">
             <span class="font-serif font-medium text-stone-800 group-hover:text-academic-navy transition">研究分科会</span>
             <span class="font-en text-[11px] tracking-[0.18em] uppercase text-academic-gold">Divisions</span>
           </a>
@@ -355,7 +355,7 @@
           <span class="font-serif font-medium text-stone-800">研究業績・モノグラフ</span>
           <span class="font-en text-xs uppercase tracking-widest text-academic-gold">Works</span>
         </a>
-        <a href="#study-groups" onclick="toggleMobileMenu()" class="block py-2 border-b border-stone-200/70 flex justify-between items-center">
+        <a href="#study-groups" hidden onclick="toggleMobileMenu()" class="block py-2 border-b border-stone-200/70 flex justify-between items-center">
           <span class="font-serif font-medium text-stone-800">研究分科会</span>
           <span class="font-en text-xs uppercase tracking-widest text-academic-gold">Study Groups</span>
         </a>
@@ -386,7 +386,7 @@
     <nav class="side-navigation" aria-label="研究会のページ内ナビゲーション">
       <a href="#framework"><span>研究理念</span><small>Framework</small></a>
       <a href="#works"><span>研究業績</span><small>Works</small></a>
-      <a href="#study-groups"><span>研究分科会</span><small>Study Groups</small></a>
+      <a href="#study-groups" hidden><span>研究分科会</span><small>Study Groups</small></a>
       <a href="#news"><span>新着情報</span><small>News</small></a>
       <a href="#profile"><span>研究会について</span><small>Profile</small></a>
       <a id="contact-link" hidden href="#" aria-label="メールでお問い合わせ">
@@ -570,10 +570,10 @@
         </div>
       </section>
 
-      <!-- Two Column Section: News & Study Groups -->
+      <!-- News section (study groups reserved for future activation) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-24">
         <!-- News Column -->
-        <section id="news" class="lg:col-span-7 xl:col-span-8">
+        <section id="news" class="lg:col-span-12">
           <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3.5 mb-6 gap-4">
             <div>
               <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Chronicle &amp; Updates</span>
@@ -595,8 +595,8 @@
           </div>
         </section>
 
-        <!-- Study Groups Column -->
-        <section id="study-groups" class="lg:col-span-5 xl:col-span-4">
+        <!-- Study Groups: inactive, preserve for later activation -->
+        <section id="study-groups" hidden class="lg:col-span-5 xl:col-span-4">
           <div class="border-b-2 border-academic-navy pb-3.5 mb-6">
             <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Research Divisions</span>
             <div class="flex items-baseline gap-3 mt-0.5">
@@ -745,7 +745,7 @@
               <li><a href="#news" class="hover:text-white transition">新着情報 (News)</a></li>
               <li><a href="#framework" class="hover:text-white transition">研究理念 (Framework)</a></li>
               <li><a href="#works" class="hover:text-white transition">研究業績・叢書 (Works)</a></li>
-              <li><a href="#study-groups" class="hover:text-white transition">研究分科会 (Study Groups)</a></li>
+              <li hidden><a href="#study-groups" class="hover:text-white transition">研究分科会 (Study Groups)</a></li>
               <li><a href="#profile" class="hover:text-white transition">概要・代表 (Profile &amp; CV)</a></li>
             </ul>
           </div>
