@@ -940,7 +940,7 @@
             themes: 'profile-themes'
           })) {
             if (p[key] !== undefined && p[key] !== null && String(p[key]).trim() !== '') {
-              document.getElementById(id).textContent = String(p[key]);
+              document.getElementById(id).textContent = String(p[key]).replace(/<br\s*\/?>/gi, '\n');
             }
           }
 
@@ -984,7 +984,7 @@
             contact.removeAttribute('href');
           }
           if (Object.prototype.hasOwnProperty.call(p, 'keywords')) {
-            const values = Array.isArray(p.keywords) ? p.keywords : String(p.keywords ?? '').split(/[\n\r、,，]+/);
+            const values = Array.isArray(p.keywords) ? p.keywords : String(p.keywords ?? '').replace(/<br\s*\/?>/gi, '\n').split(/[\n\r、,，]+/);
             const target = document.getElementById('profile-keywords');
             target.replaceChildren();
             values.map(value => String(value).trim()).filter(Boolean).forEach(value => {
