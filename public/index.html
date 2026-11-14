@@ -1035,9 +1035,11 @@
 
     function renderNews(filterCategory = 'all') {
       const list = document.getElementById('news-list');
+      // Division-related announcements remain in the CMS but are not shown while study groups are inactive.
+      const visibleNews = newsItems.filter(item => !String(item.title || '').includes('医療DX・データヘルス法制部会にて'));
       const filtered = filterCategory === 'all'
-        ? newsItems
-        : newsItems.filter(item => item.category === filterCategory);
+        ? visibleNews
+        : visibleNews.filter(item => item.category === filterCategory);
 
       if (!filtered.length) {
         list.innerHTML = `<div class="py-8 text-sm text-stone-400 font-serif text-center">該当する新着情報はありません。</div>`;
