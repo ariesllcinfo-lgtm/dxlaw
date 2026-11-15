@@ -34,11 +34,13 @@ jobs:
           # GitHub push can finish before the Cloudflare deployment; wait for the grouped-page marker.
           for i in $(seq 1 18); do
             curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ -o /tmp/dxlaw-home.html
-            if grep -q 'column-gap:0;' /tmp/dxlaw-home.html && ! grep -q 'data-group-start' /tmp/dxlaw-home.html; then break; fi
+            if grep -q 'width:80px; min-width:80px; padding-left:7px;' /tmp/dxlaw-home.html && ! grep -q 'data-group-start' /tmp/dxlaw-home.html; then break; fi
             echo "New grouping deployment not yet visible (attempt $i)"
             sleep 5
           done
           grep -q 'column-gap:0;' /tmp/dxlaw-home.html
+          grep -q 'width:80px; min-width:80px; padding-left:7px;' /tmp/dxlaw-home.html
+          grep -q 'width:72px; min-width:72px; padding-left:6px;' /tmp/dxlaw-home.html
           ! grep -q 'data-group-start' /tmp/dxlaw-home.html
           grep -q 'id="paper-sort"' /tmp/dxlaw-home.html
           grep -q 'PAPERS_API_URL' /tmp/dxlaw-home.html
