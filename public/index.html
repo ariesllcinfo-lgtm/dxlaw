@@ -239,12 +239,12 @@
       .destination-icon { color:#9a7b3e; font-family:serif; font-size:20px; line-height:1.2; margin-bottom:3px; }
     }
 
-    /* Slightly slimmer book spines */
-    .shelf-book { width:88px; min-width:88px; padding-left:8px; padding-right:8px; }
-    .shelf-title { max-width:62px; }
+    /* Compact book spines: narrower without reducing vertical title font size. */
+    .shelf-book { width:80px; min-width:80px; padding-left:7px; padding-right:7px; }
+    .shelf-title { max-width:56px; }
     @media(max-width:420px) {
-      .shelf-book { width:80px; min-width:80px; padding-left:7px; padding-right:7px; }
-      .shelf-title { max-width:56px; }
+      .shelf-book { width:72px; min-width:72px; padding-left:6px; padding-right:6px; }
+      .shelf-title { max-width:50px; }
     }
 
     .back-to-top { position:fixed; right:22px; bottom:max(22px,env(safe-area-inset-bottom)); z-index:50; width:52px; height:52px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:3px; border:1px solid #bba779; border-radius:50%; background:#14213d; color:#f4e9d0; box-shadow:0 4px 16px #14213d33; cursor:pointer; opacity:0; visibility:hidden; transform:translateY(8px); transition:opacity .2s,transform .2s,visibility .2s,background .2s; }
