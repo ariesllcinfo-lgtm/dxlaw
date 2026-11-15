@@ -59,4 +59,32 @@ jobs:
             if(actual!==expected)throw Error('Expected '+expected+' got '+actual+' for '+JSON.stringify(input));
           }
           console.log('Verified Notion-based subject color mappings:',cases.length);
+          // Render sample papers and verify a separate, labeled shelf per used color.
+          const renderEnd=h.indexOf('    function filterWorks(',start);
+          if(renderEnd<0)throw Error('Grouped bookshelf renderer missing');
+          const src=h.slice(start,renderEnd);
+          const makeEl=tag=>({
+            tag, children:[], attrs:{}, className:'', textContent:'',
+            setAttribute(k,v){this.attrs[k]=v;},
+            append(...parts){this.children.push(...parts);},
+            replaceChildren(...parts){this.children=[...parts];}
+          });
+          const root=makeEl('div');
+          const doc={getElementById:id=>id==='works-grid'?root:null,createElement:makeEl};
+          const fakePapers=[
+            {title:'金融2',type:'論文',specialties:['金融法'],field:'法学',url:'https://www.notion.so/1'},
+            {title:'行政1',type:'論文',specialties:['行政法'],field:'法学',url:'https://www.notion.so/2'},
+            {title:'行政2',type:'論文',specialties:['補助金法'],field:'法学',url:'https://www.notion.so/3'},
+            {title:'金融1',type:'論文',specialties:['有価証券法'],field:'法学',url:'https://www.notion.so/4'}
+          ];
+          Function('worksData','document','paperSyncError',src+';renderWorks();')(fakePapers,doc,false);
+          if(root.children.length!==2) throw Error('Expected two nonempty grouped shelves, got '+root.children.length);
+          const kinds=root.children.map(e=>e.children[1].children.map(slot=>slot.children[0].className));
+          if(kinds[0].length!==2||kinds[1].length!==2)throw Error('Incorrect grouped paper count');
+          if(!kinds[0].every(v=>v==='shelf-book cover-admin')||!kinds[1].every(v=>v==='shelf-book cover-finance'))
+            throw Error('Books not grouped by matching colour');
+          if(root.children[0].children[0].children[2].textContent!=='2件')throw Error('Group count missing');
+          if(root.children[0].children[0].children[1].textContent!=='行政法系')throw Error('First shelf missing title');
+          if(root.children[1].children[0].children[1].textContent!=='金融法系')throw Error('Second shelf missing title');
+          console.log('Verified grouping, labels, counts and color ordering');
           NODE
