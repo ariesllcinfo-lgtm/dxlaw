@@ -44,7 +44,7 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const h=fs.readFileSync('/tmp/dxlaw-home.html','utf8');
-          for(const v of ['paper-color-legend','cover-admin','cover-finance','cover-medical','cover-literature','const PAPER_FAMILY_RULES = [']) {
+          for(const v of ['id="paper-sort"','id="works-grid" class="bookshelf"','cover-admin','cover-finance','cover-medical','cover-literature','const PAPER_FAMILY_RULES = [','function sortedPapers()']) {
             if (!h.includes(v)) throw Error('Missing color marker: '+v);
           }
           const start=h.indexOf('const PAPER_FAMILY_RULES = [');
@@ -66,12 +66,12 @@ jobs:
             if(actual!==expected)throw Error('Expected '+expected+' got '+actual+' for '+JSON.stringify(input));
           }
           console.log('Verified Notion-based subject color mappings:',cases.length);
-          // Render sample papers and verify a separate, labeled shelf per used color.
-          const renderEnd=h.indexOf('    function filterWorks(',start);
-          if(renderEnd<0)throw Error('Grouped bookshelf renderer missing');
+          // Use a minimal DOM to exercise the production sorting code itself.
+          const renderEnd=h.indexOf('    function openWorkModal(',start);
+          if(renderEnd<0)throw Error('Continuous bookshelf renderer missing');
           const src=h.slice(start,renderEnd);
           const makeEl=tag=>({
-            tag, children:[], attrs:{}, className:'', textContent:'',
+            tag,children:[],attrs:{},className:'',textContent:'',
             setAttribute(k,v){this.attrs[k]=v;},
             append(...parts){this.children.push(...parts);},
             replaceChildren(...parts){this.children=[...parts];}
@@ -79,19 +79,29 @@ jobs:
           const root=makeEl('div');
           const doc={getElementById:id=>id==='works-grid'?root:null,createElement:makeEl};
           const fakePapers=[
-            {title:'金融2',type:'論文',specialties:['金融法'],field:'法学',url:'https://www.notion.so/1'},
-            {title:'行政1',type:'論文',specialties:['行政法'],field:'法学',url:'https://www.notion.so/2'},
-            {title:'行政2',type:'論文',specialties:['補助金法'],field:'法学',url:'https://www.notion.so/3'},
-            {title:'金融1',type:'論文',specialties:['有価証券法'],field:'法学',url:'https://www.notion.so/4'}
+            {paperId:'PAP-0020',title:'金融B',type:'論文',specialties:['金融法'],field:'法学',url:'https://www.notion.so/1'},
+            {paperId:'PAP-0002',title:'行政B',type:'論文',specialties:['行政法'],field:'法学',url:'https://www.notion.so/2'},
+            {paperId:'PAP-0021',title:'行政A',type:'論文',specialties:['補助金法'],field:'法学',url:'https://www.notion.so/3'},
+            {paperId:'PAP-0001',title:'金融A',type:'論文',specialties:['有価証券法'],field:'法学',url:'https://www.notion.so/4'}
           ];
-          Function('worksData','document','paperSyncError',src+';renderWorks();')(fakePapers,doc,false);
-          if(root.children.length!==2) throw Error('Expected two nonempty grouped shelves, got '+root.children.length);
-          const kinds=root.children.map(e=>e.children[1].children.map(slot=>slot.children[0].className));
-          if(kinds[0].length!==2||kinds[1].length!==2)throw Error('Incorrect grouped paper count');
-          if(!kinds[0].every(v=>v==='shelf-book cover-admin')||!kinds[1].every(v=>v==='shelf-book cover-finance'))
-            throw Error('Books not grouped by matching colour');
-          if(root.children[0].children[0].children[2].textContent!=='2件')throw Error('Group count missing');
-          if(root.children[0].children[0].children[1].textContent!=='行政法系')throw Error('First shelf missing title');
-          if(root.children[1].children[0].children[1].textContent!=='金融法系')throw Error('Second shelf missing title');
-          console.log('Verified grouping, labels, counts and color ordering');
+          const app=Function('worksData','document','paperSyncError',src+';return {renderWorks,setPaperSort,sortedPapers};')(fakePapers,doc,false);
+          const colors=()=>root.children.map(slot=>slot.children[0].className);
+          const ids=()=>root.children.map(slot=>slot.children[0].children[0].textContent);
+          if(root.children.length!==0)throw Error('Should not populate shelf before render');
+          app.renderWorks();
+          if(root.children.length!==4)throw Error('Expected four books in ONE shelf');
+          if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
+            throw Error('Default sort did not cluster same-colour books');
+          if(root.children[2].attrs['data-group-start']!=='true')throw Error('Missing subtle group boundary');
+          app.setPaperSort('id');
+          if(ids().join(',')!=='PAP-0001,PAP-0002,PAP-0020,PAP-0021')
+            throw Error('ID sort incorrect: '+ids());
+          if(root.children.some(slot=>slot.attrs['data-group-start']))throw Error('Boundary should be hidden in ID sort');
+          app.setPaperSort('title');
+          if(ids().join(',')!=='PAP-0021,PAP-0002,PAP-0001,PAP-0020')
+            throw Error('Title sort incorrect: '+ids());
+          app.setPaperSort('color');
+          if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
+            throw Error('Color sort not restored');
+          console.log('Verified single shelf, grouping and interactive sorting');
           NODE
