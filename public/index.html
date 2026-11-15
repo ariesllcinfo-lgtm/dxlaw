@@ -295,16 +295,16 @@
     .paper-color-legend span { display:inline-flex; gap:.35rem; align-items:center; white-space:nowrap; font-family:"Noto Serif JP",serif; font-size:10px; color:#6b645b; }
     .paper-swatch { display:inline-block; width:10px; height:10px; border:1px solid #ffffff88; box-shadow:0 0 0 1px #00000017; border-radius:2px; flex:none; }
   
-    /* Books are grouped under one labelled shelf per Notion discipline colour. */
-    .paper-shelf-groups { display:flex; flex-direction:column; gap:2.2rem; }
-    .paper-shelf-group { min-width:0; }
-    .paper-shelf-group-heading { display:flex; align-items:center; gap:.65rem; margin:0 0 .65rem; padding:0 0 .5rem; border-bottom:1px solid #ded7ca; }
-    .paper-shelf-group-title { font-family:"Noto Serif JP",serif; color:#28394a; font-size:clamp(.9rem,2vw,1.08rem); font-weight:600; letter-spacing:.025em; }
-    .paper-shelf-group-count { font-family:"Noto Sans JP",sans-serif; font-size:.72rem; color:#817567; font-variant-numeric:tabular-nums; }
-    .paper-shelf-group .bookshelf { min-height:0; width:100%; padding-top:1.45rem; }
-    .paper-shelf-groups > .shelf-empty { margin:0; padding:2rem; border:1px solid #ded7ca; background:#f5f0e7; }
-    @media (max-width:560px) { .paper-shelf-groups { gap:1.7rem; } .paper-shelf-group .bookshelf { padding-top:1rem; } }
-</style>
+    /* A single continuous bookshelf, with adjacent books grouped by their discipline colours. */
+    .paper-shelf-controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:.6rem .8rem; }
+    .paper-sort-select { padding:.48rem 2rem .48rem .65rem; min-height:36px; max-width:100%; font-family:"Noto Serif JP",serif; font-size:.75rem; border:1px solid #d9cdbb; border-radius:3px; background:#fff; color:#28394a; cursor:pointer; }
+    .paper-sort-select:focus-visible { outline:2px solid #9a7b3e; outline-offset:2px; }
+    .bookshelf .shelf-slot[data-group-start="true"] { margin-inline-start:14px; }
+    @media(max-width:560px) {
+      .paper-shelf-controls { justify-content:flex-start; }
+      .bookshelf .shelf-slot[data-group-start="true"] { margin-inline-start:9px; }
+    }
+  </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
   <div class="bg-paper-overlay min-h-screen flex flex-col justify-between">
@@ -593,10 +593,19 @@
               <span class="text-xs text-stone-500 font-serif">書籍種別が「論文」の研究のみ表示。クリックするとNotionの該当ページを開きます。</span>
             </div>
           </div>
-          <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
+          <div class="paper-shelf-controls">
+            <label for="paper-sort" class="font-serif text-xs text-stone-600">並び順</label>
+            <select id="paper-sort" class="paper-sort-select" onchange="setPaperSort(this.value)" aria-label="論文の並び順">
+              <option value="color" selected>分野別（同じ色をまとめる）</option>
+              <option value="id">論文ID順</option>
+              <option value="title">タイトル順</option>
+              <option value="updated">更新日順（新しい順）</option>
+            </select>
+            <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
+          </div>
         </div>
 
-        <div id="works-grid" class="paper-shelf-groups" aria-live="polite">
+        <div id="works-grid" class="bookshelf" aria-label="論文の本棚" aria-live="polite">
           <p class="shelf-empty">Notionの論文リポジトリを読み込んでいます...</p>
         </div>
 
@@ -1200,23 +1209,58 @@
       return PAPER_DEFAULT_FAMILY;
     }
 
-    // Stable section order; a section appears only when at least one paper belongs to it.
+    // Fixed color order. Other sorts change book order without creating separate shelves.
     const PAPER_GROUP_ORDER = [
       'admin', 'finance', 'medical', 'info', 'civil', 'economy',
       'literature', 'maritime', 'labor', 'history', 'other'
     ];
+    const PAPER_SORT_MODES = ['color', 'id', 'title', 'updated'];
+    let paperSortMode = 'color';
+
+    function comparePaperIds(a, b) {
+      const left = String(a.paperId || '').trim();
+      const right = String(b.paperId || '').trim();
+      if (left && !right) return -1;
+      if (!left && right) return 1;
+      return left.localeCompare(right, 'ja', {numeric: true}) || String(a.title || '').localeCompare(String(b.title || ''), 'ja');
+    }
+
+    function sortedPapers() {
+      const sorted = worksData.slice();
+      sorted.sort((a, b) => {
+        if (paperSortMode === 'color') {
+          const aRank = PAPER_GROUP_ORDER.indexOf(paperColorFamily(a).key);
+          const bRank = PAPER_GROUP_ORDER.indexOf(paperColorFamily(b).key);
+          return aRank - bRank || comparePaperIds(a, b);
+        }
+        if (paperSortMode === 'title') {
+          return String(a.title || '').localeCompare(String(b.title || ''), 'ja') || comparePaperIds(a, b);
+        }
+        if (paperSortMode === 'updated') {
+          return String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')) || comparePaperIds(a, b);
+        }
+        return comparePaperIds(a, b);
+      });
+      return sorted;
+    }
+
+    function setPaperSort(mode) {
+      if (!PAPER_SORT_MODES.includes(mode)) return;
+      paperSortMode = mode;
+      renderWorks();
+    }
 
     function renderWorks() {
-      const grid = document.getElementById('works-grid');
-      if (!grid) return;
-      grid.replaceChildren();
+      const shelf = document.getElementById('works-grid');
+      if (!shelf) return;
+      shelf.replaceChildren();
       if (!worksData.length) {
         const message = document.createElement('p');
         message.className = 'shelf-empty';
         message.textContent = paperSyncError
           ? '論文リポジトリを取得できませんでした。Notion連携の設定を確認してください。'
           : '「書籍種別：論文」に設定された論文はまだありません。';
-        grid.append(message);
+        shelf.append(message);
         return;
       }
 
@@ -1226,70 +1270,36 @@
         el.textContent = value || '';
         return el;
       };
-      const buckets = new Map();
-      for (const work of worksData) {
+      let previousFamily = null;
+      for (const work of sortedPapers()) {
         const family = paperColorFamily(work);
-        if (!buckets.has(family.key)) buckets.set(family.key, {family, works: []});
-        buckets.get(family.key).works.push(work);
-      }
-
-      // Do not render empty colour groups; preserve backend's ordering within each group.
-      for (const key of PAPER_GROUP_ORDER) {
-        const bucket = buckets.get(key);
-        if (!bucket || !bucket.works.length) continue;
-
-        const section = document.createElement('section');
-        section.className = 'paper-shelf-group';
-        const headingId = 'paper-group-' + key;
-        section.setAttribute('aria-labelledby', headingId);
-        const header = document.createElement('div');
-        header.className = 'paper-shelf-group-heading';
-        const swatch = document.createElement('i');
-        swatch.className = 'paper-swatch swatch-' + key;
-        swatch.setAttribute('aria-hidden', 'true');
-        const title = textEl('h3', 'paper-shelf-group-title', bucket.family.label);
-        title.id = headingId;
-        const count = textEl('span', 'paper-shelf-group-count', bucket.works.length + '件');
-        header.append(swatch, title, count);
-
-        const shelf = document.createElement('div');
-        shelf.className = 'bookshelf';
-        bucket.works.forEach(w => {
-          const slot = document.createElement('div');
-          slot.className = 'shelf-slot';
-          const card = document.createElement('a');
-          card.className = 'shelf-book cover-' + key;
-          card.setAttribute('data-discipline', bucket.family.label);
-          card.title = bucket.family.label + '｜' + w.title;
-          card.href = w.url;
-          card.target = '_blank';
-          card.rel = 'noopener noreferrer';
-          card.setAttribute('aria-label', (w.title || '論文') + 'をNotionで開く');
-          card.append(
-            textEl('span', 'shelf-series', w.paperId || w.field || '研究論文'),
-            textEl('span', 'shelf-rule', ''),
-            textEl('span', 'shelf-title', w.title),
-            textEl('span', 'shelf-subtitle', w.subtitle),
-            textEl('span', 'shelf-author', w.maturity ? '研究段階：' + w.maturity : '論文'),
-            textEl('span', 'shelf-open', 'Notionで開く ↗')
-          );
-          slot.append(card);
-          shelf.append(slot);
-        });
-        section.append(header, shelf);
-        grid.append(section);
-      }
-    }
-
-    function filterWorks(category) {
-      document.querySelectorAll('.works-filter-btn').forEach(btn => {
-        if (btn.dataset.wfilter === category) {
-          btn.className = 'works-filter-btn px-3 py-1 bg-academic-navy text-white font-mono text-[11px] transition';
-        } else {
-          btn.className = 'works-filter-btn px-3 py-1 bg-academic-stone text-stone-700 hover:bg-stone-300/70 font-mono text-[11px] transition';
+        const slot = document.createElement('div');
+        slot.className = 'shelf-slot';
+        // Subtle spacing shows color group boundaries without breaking the bookshelf.
+        if (paperSortMode === 'color' && previousFamily && family.key !== previousFamily) {
+          slot.setAttribute('data-group-start', 'true');
         }
-      });
-      renderWorks(category);
+        previousFamily = family.key;
+
+        const card = document.createElement('a');
+        card.className = 'shelf-book cover-' + family.key;
+        card.setAttribute('data-discipline', family.label);
+        card.title = family.label + '｜' + work.title;
+        card.href = work.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.setAttribute('aria-label', (work.title || '論文') + 'をNotionで開く');
+        card.append(
+          textEl('span', 'shelf-series', work.paperId || work.field || '研究論文'),
+          textEl('span', 'shelf-rule', ''),
+          textEl('span', 'shelf-title', work.title),
+          textEl('span', 'shelf-subtitle', work.subtitle),
+          textEl('span', 'shelf-author', work.maturity ? '研究段階：' + work.maturity : '論文'),
+          textEl('span', 'shelf-open', 'Notionで開く ↗')
+        );
+        slot.append(card);
+        shelf.append(slot);
+      }
     }
 
     function openWorkModal(workId) {
