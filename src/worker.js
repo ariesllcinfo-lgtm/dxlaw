@@ -40,12 +40,93 @@ async function loadCMS(token) {
   data.updatedAt = new Date().toISOString();
   return data;
 }
+
+const PAPER_SOURCE_ID = '3fa51522-3974-80bd-bbbd-000b4bd5eea2';
+const PAPER_TYPE = '論文';
+
+// This endpoint intentionally returns ONLY rows explicitly classified as 論文.
+// Uncategorized entries, research notes and books are never inferred as papers.
+async function loadPapers(token) {
+  const works = [];
+  let cursor = null;
+  const visited = new Set();
+  do {
+    const response = await fetch('https://api.notion.com/v1/data_sources/' + PAPER_SOURCE_ID + '/query', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Notion-Version': '2025-09-03',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        page_size: 100,
+        filter: {property: '書籍種別', select: {equals: PAPER_TYPE}},
+        ...(cursor ? {start_cursor: cursor} : {}),
+      }),
+    });
+    if (!response.ok) {
+      const error = new Error('Notion papers API error: ' + response.status);
+      error.status = response.status;
+      throw error;
+    }
+    const body = await response.json();
+    for (const page of body.results || []) {
+      if (page.archived || page.in_trash) continue;
+      const props = page.properties || {};
+      if (value(props['書籍種別']) !== PAPER_TYPE) continue;
+      const title = value(props['論文タイトル']).trim();
+      if (!title) continue;
+      const notionId = value(props['論文ID']).trim();
+      const maturity = value(props['研究成熟度']).trim();
+      const status = value(props['状態']).trim();
+      const field = value(props['主学問分野']).trim();
+      works.push({
+        id: page.id,
+        paperId: notionId,
+        type: PAPER_TYPE,
+        category: 'article',
+        title,
+        subtitle: value(props['サブタイトル']).trim(),
+        maturity,
+        status,
+        field,
+        updatedAt: page.last_edited_time || '',
+        url: page.url || '',
+      });
+    }
+    cursor = body.has_more ? body.next_cursor : null;
+    if (cursor) {
+      if (visited.has(cursor)) throw new Error('Repeated Notion papers pagination cursor');
+      visited.add(cursor);
+    } else if (body.has_more) {
+      throw new Error('Missing Notion papers pagination cursor');
+    }
+  } while (cursor);
+  works.sort((a, b) => {
+    if (a.paperId && b.paperId) return a.paperId.localeCompare(b.paperId, 'ja', {numeric: true});
+    if (a.paperId) return -1;
+    if (b.paperId) return 1;
+    return a.title.localeCompare(b.title, 'ja');
+  });
+  return {works, source: 'notion-paper-repository', updatedAt: new Date().toISOString()};
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== '/api/cms') return env.ASSETS.fetch(request);
+    if (url.pathname !== '/api/cms' && url.pathname !== '/api/papers') return env.ASSETS.fetch(request);
     if (request.method !== 'GET') return new Response('Method not allowed', {status:405, headers:{Allow:'GET'}});
     if (!env.NOTION_TOKEN) return new Response('Notion CMS is not configured', {status:503});
+    if (url.pathname === '/api/papers') {
+      try {
+        return Response.json(await loadPapers(env.NOTION_TOKEN), {
+          headers: {'Cache-Control': 'public, max-age=60, s-maxage=120'},
+        });
+      } catch (error) {
+        console.error('Papers unavailable', error.message);
+        return new Response('Papers unavailable', {status:502, headers:{'Cache-Control':'no-store'}});
+      }
+    }
     try {
       return Response.json(await loadCMS(env.NOTION_TOKEN), {headers:{'Cache-Control':'public, max-age=60'}});
     } catch (error) {
