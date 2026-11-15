@@ -294,7 +294,17 @@
     .paper-color-legend { display:flex; flex-wrap:wrap; gap:.45rem 1rem; padding:0 0 1rem; align-items:center; }
     .paper-color-legend span { display:inline-flex; gap:.35rem; align-items:center; white-space:nowrap; font-family:"Noto Serif JP",serif; font-size:10px; color:#6b645b; }
     .paper-swatch { display:inline-block; width:10px; height:10px; border:1px solid #ffffff88; box-shadow:0 0 0 1px #00000017; border-radius:2px; flex:none; }
-  </style>
+  
+    /* Books are grouped under one labelled shelf per Notion discipline colour. */
+    .paper-shelf-groups { display:flex; flex-direction:column; gap:2.2rem; }
+    .paper-shelf-group { min-width:0; }
+    .paper-shelf-group-heading { display:flex; align-items:center; gap:.65rem; margin:0 0 .65rem; padding:0 0 .5rem; border-bottom:1px solid #ded7ca; }
+    .paper-shelf-group-title { font-family:"Noto Serif JP",serif; color:#28394a; font-size:clamp(.9rem,2vw,1.08rem); font-weight:600; letter-spacing:.025em; }
+    .paper-shelf-group-count { font-family:"Noto Sans JP",sans-serif; font-size:.72rem; color:#817567; font-variant-numeric:tabular-nums; }
+    .paper-shelf-group .bookshelf { min-height:0; width:100%; padding-top:1.45rem; }
+    .paper-shelf-groups > .shelf-empty { margin:0; padding:2rem; border:1px solid #ded7ca; background:#f5f0e7; }
+    @media (max-width:560px) { .paper-shelf-groups { gap:1.7rem; } .paper-shelf-group .bookshelf { padding-top:1rem; } }
+</style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
   <div class="bg-paper-overlay min-h-screen flex flex-col justify-between">
@@ -586,23 +596,10 @@
           <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
         </div>
 
-        <div class="paper-color-legend" aria-label="背表紙の分野別カラー">
-          <span><i class="paper-swatch swatch-admin" aria-hidden="true"></i>行政法系</span>
-          <span><i class="paper-swatch swatch-finance" aria-hidden="true"></i>金融法系</span>
-          <span><i class="paper-swatch swatch-medical" aria-hidden="true"></i>医事・社会保障法系</span>
-          <span><i class="paper-swatch swatch-info" aria-hidden="true"></i>情報法・AI系</span>
-          <span><i class="paper-swatch swatch-civil" aria-hidden="true"></i>民事・不動産法系</span>
-          <span><i class="paper-swatch swatch-economy" aria-hidden="true"></i>経済・経営学系</span>
-          <span><i class="paper-swatch swatch-literature" aria-hidden="true"></i>文学系</span>
-          <span><i class="paper-swatch swatch-maritime" aria-hidden="true"></i>海商・国際取引法系</span>
-          <span><i class="paper-swatch swatch-labor" aria-hidden="true"></i>労働法系</span>
-          <span><i class="paper-swatch swatch-history" aria-hidden="true"></i>比較法・法制史系</span>
-          <span><i class="paper-swatch swatch-other" aria-hidden="true"></i>その他</span>
+        <div id="works-grid" class="paper-shelf-groups" aria-live="polite">
+          <p class="shelf-empty">Notionの論文リポジトリを読み込んでいます...</p>
         </div>
 
-        <div id="works-grid" class="bookshelf">
-          <div class="col-span-full py-12 text-center text-sm text-stone-400 font-serif">Notionの論文リポジトリを読み込んでいます...</div>
-        </div>
       </section>
 
       <!-- News section (study groups reserved for future activation) -->
@@ -1203,6 +1200,12 @@
       return PAPER_DEFAULT_FAMILY;
     }
 
+    // Stable section order; a section appears only when at least one paper belongs to it.
+    const PAPER_GROUP_ORDER = [
+      'admin', 'finance', 'medical', 'info', 'civil', 'economy',
+      'literature', 'maritime', 'labor', 'history', 'other'
+    ];
+
     function renderWorks() {
       const grid = document.getElementById('works-grid');
       if (!grid) return;
@@ -1216,35 +1219,66 @@
         grid.append(message);
         return;
       }
+
       const textEl = (tag, cls, value) => {
         const el = document.createElement(tag);
         el.className = cls;
         el.textContent = value || '';
         return el;
       };
-      worksData.forEach(w => {
-        const family = paperColorFamily(w);
-        const slot = document.createElement('div');
-        slot.className = 'shelf-slot';
-        const card = document.createElement('a');
-        card.className = 'shelf-book cover-' + family.key;
-        card.setAttribute('data-discipline', family.label);
-        card.title = family.label + '｜' + w.title;
-        card.href = w.url;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
-        card.setAttribute('aria-label', (w.title || '論文') + 'をNotionで開く');
-        card.append(
-          textEl('span', 'shelf-series', w.paperId || w.field || '研究論文'),
-          textEl('span', 'shelf-rule', ''),
-          textEl('span', 'shelf-title', w.title),
-          textEl('span', 'shelf-subtitle', w.subtitle),
-          textEl('span', 'shelf-author', w.maturity ? '研究段階：' + w.maturity : '論文'),
-          textEl('span', 'shelf-open', 'Notionで開く ↗')
-        );
-        slot.append(card);
-        grid.append(slot);
-      });
+      const buckets = new Map();
+      for (const work of worksData) {
+        const family = paperColorFamily(work);
+        if (!buckets.has(family.key)) buckets.set(family.key, {family, works: []});
+        buckets.get(family.key).works.push(work);
+      }
+
+      // Do not render empty colour groups; preserve backend's ordering within each group.
+      for (const key of PAPER_GROUP_ORDER) {
+        const bucket = buckets.get(key);
+        if (!bucket || !bucket.works.length) continue;
+
+        const section = document.createElement('section');
+        section.className = 'paper-shelf-group';
+        const headingId = 'paper-group-' + key;
+        section.setAttribute('aria-labelledby', headingId);
+        const header = document.createElement('div');
+        header.className = 'paper-shelf-group-heading';
+        const swatch = document.createElement('i');
+        swatch.className = 'paper-swatch swatch-' + key;
+        swatch.setAttribute('aria-hidden', 'true');
+        const title = textEl('h3', 'paper-shelf-group-title', bucket.family.label);
+        title.id = headingId;
+        const count = textEl('span', 'paper-shelf-group-count', bucket.works.length + '件');
+        header.append(swatch, title, count);
+
+        const shelf = document.createElement('div');
+        shelf.className = 'bookshelf';
+        bucket.works.forEach(w => {
+          const slot = document.createElement('div');
+          slot.className = 'shelf-slot';
+          const card = document.createElement('a');
+          card.className = 'shelf-book cover-' + key;
+          card.setAttribute('data-discipline', bucket.family.label);
+          card.title = bucket.family.label + '｜' + w.title;
+          card.href = w.url;
+          card.target = '_blank';
+          card.rel = 'noopener noreferrer';
+          card.setAttribute('aria-label', (w.title || '論文') + 'をNotionで開く');
+          card.append(
+            textEl('span', 'shelf-series', w.paperId || w.field || '研究論文'),
+            textEl('span', 'shelf-rule', ''),
+            textEl('span', 'shelf-title', w.title),
+            textEl('span', 'shelf-subtitle', w.subtitle),
+            textEl('span', 'shelf-author', w.maturity ? '研究段階：' + w.maturity : '論文'),
+            textEl('span', 'shelf-open', 'Notionで開く ↗')
+          );
+          slot.append(card);
+          shelf.append(slot);
+        });
+        section.append(header, shelf);
+        grid.append(section);
+      }
     }
 
     function filterWorks(category) {
