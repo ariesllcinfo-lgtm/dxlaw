@@ -267,6 +267,33 @@
     .mascot-copy p { font-size:.875rem; line-height:1.9; color:#57534e; }
     .mascot-section img { width:clamp(120px,20vw,210px); height:auto; object-fit:contain; flex:none; }
     @media(max-width:560px) { .mascot-section { gap:1rem; padding:1.5rem 1rem; } .mascot-section img { width:105px; } .mascot-copy p { font-size:.78rem; } }
+  
+    /* Notion 専門領域による色分け：ここへ系統と色を追加できます。 */
+    .shelf-book.cover-admin { background-color:#49795b; background-blend-mode:multiply; }
+    .paper-swatch.swatch-admin { background:#49795b; }
+    .shelf-book.cover-finance { background-color:#273d5a; background-blend-mode:multiply; }
+    .paper-swatch.swatch-finance { background:#273d5a; }
+    .shelf-book.cover-medical { background-color:#844554; background-blend-mode:multiply; }
+    .paper-swatch.swatch-medical { background:#844554; }
+    .shelf-book.cover-info { background-color:#347276; background-blend-mode:multiply; }
+    .paper-swatch.swatch-info { background:#347276; }
+    .shelf-book.cover-civil { background-color:#82604d; background-blend-mode:multiply; }
+    .paper-swatch.swatch-civil { background:#82604d; }
+    .shelf-book.cover-economy { background-color:#897239; background-blend-mode:multiply; }
+    .paper-swatch.swatch-economy { background:#897239; }
+    .shelf-book.cover-literature { background-color:#6f5286; background-blend-mode:multiply; }
+    .paper-swatch.swatch-literature { background:#6f5286; }
+    .shelf-book.cover-maritime { background-color:#426780; background-blend-mode:multiply; }
+    .paper-swatch.swatch-maritime { background:#426780; }
+    .shelf-book.cover-labor { background-color:#945543; background-blend-mode:multiply; }
+    .paper-swatch.swatch-labor { background:#945543; }
+    .shelf-book.cover-history { background-color:#565f81; background-blend-mode:multiply; }
+    .paper-swatch.swatch-history { background:#565f81; }
+    .shelf-book.cover-other { background-color:#58636c; background-blend-mode:multiply; }
+    .paper-swatch.swatch-other { background:#58636c; }
+    .paper-color-legend { display:flex; flex-wrap:wrap; gap:.45rem 1rem; padding:0 0 1rem; align-items:center; }
+    .paper-color-legend span { display:inline-flex; gap:.35rem; align-items:center; white-space:nowrap; font-family:"Noto Serif JP",serif; font-size:10px; color:#6b645b; }
+    .paper-swatch { display:inline-block; width:10px; height:10px; border:1px solid #ffffff88; box-shadow:0 0 0 1px #00000017; border-radius:2px; flex:none; }
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-academic-navy selection:text-white">
@@ -557,6 +584,20 @@
             </div>
           </div>
           <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
+        </div>
+
+        <div class="paper-color-legend" aria-label="背表紙の分野別カラー">
+          <span><i class="paper-swatch swatch-admin" aria-hidden="true"></i>行政法系</span>
+          <span><i class="paper-swatch swatch-finance" aria-hidden="true"></i>金融法系</span>
+          <span><i class="paper-swatch swatch-medical" aria-hidden="true"></i>医事・社会保障法系</span>
+          <span><i class="paper-swatch swatch-info" aria-hidden="true"></i>情報法・AI系</span>
+          <span><i class="paper-swatch swatch-civil" aria-hidden="true"></i>民事・不動産法系</span>
+          <span><i class="paper-swatch swatch-economy" aria-hidden="true"></i>経済・経営学系</span>
+          <span><i class="paper-swatch swatch-literature" aria-hidden="true"></i>文学系</span>
+          <span><i class="paper-swatch swatch-maritime" aria-hidden="true"></i>海商・国際取引法系</span>
+          <span><i class="paper-swatch swatch-labor" aria-hidden="true"></i>労働法系</span>
+          <span><i class="paper-swatch swatch-history" aria-hidden="true"></i>比較法・法制史系</span>
+          <span><i class="paper-swatch swatch-other" aria-hidden="true"></i>その他</span>
         </div>
 
         <div id="works-grid" class="bookshelf">
@@ -1131,6 +1172,37 @@
       renderNews(category);
     }
 
+    // Notionの「分野」「専門領域」「主学問分野」を優先順位付きで判定します。
+    // 書籍種別＝論文という本棚掲載条件には影響しません。
+    const PAPER_FAMILY_RULES = [
+      {key: 'admin', label: '行政法系', terms: ['行政法', '行政救済法', '補助金法', '財政法', '公共政策学']},
+      {key: 'finance', label: '金融法系', terms: ['金融法', '金融商品取引法', '有価証券法', '決済法', '信託法', '保険法', '通貨法', 'デジタル資産法']},
+      {key: 'medical', label: '医事・社会保障法系', terms: ['医事法', '社会保障法']},
+      {key: 'maritime', label: '海商・国際取引法系', terms: ['海商法', '国際取引法']},
+      {key: 'labor', label: '労働法系', terms: ['労働法']},
+      {key: 'civil', label: '民事・不動産法系', terms: ['民法', '物権法', '不動産法', '消費者法']},
+      {key: 'info', label: '情報法・AI系', terms: ['法情報学', '情報法', 'AIガバナンス', '数理社会科学']},
+      {key: 'history', label: '比較法・法制史系', terms: ['比較法', '法制史', '比較法史', 'イスラーム法']},
+      {key: 'economy', label: '経済・経営学系', terms: ['経済学', '経営学', '金融機関経営', '制度経済学', '経営戦略論', '政治経済学', '貨幣経済学', '金融政策論', '金融経済学']},
+      {key: 'literature', label: '文学系', terms: ['文学', '比較文学', '日本古典文学', '中国古典文学', '物語論', '神話研究', '宗教文学']}
+    ];
+    const PAPER_DEFAULT_FAMILY = {key: 'other', label: 'その他'};
+
+    function paperColorFamily(work) {
+      const field = String(work.field || '').trim();
+      const terms = new Set([
+        ...(Array.isArray(work.specialties) ? work.specialties : []),
+        work.subfield || ''
+      ].map(item => String(item).trim()).filter(Boolean));
+      // 主学問分野が明示的に文学・経済・経営なら、個々の隣接専門領域より優先する。
+      if (field === '文学') return {key: 'literature', label: '文学系'};
+      if (field === '経済学' || field === '経営学') return {key: 'economy', label: '経済・経営学系'};
+      for (const group of PAPER_FAMILY_RULES) {
+        if (group.terms.some(term => terms.has(term))) return {key: group.key, label: group.label};
+      }
+      return PAPER_DEFAULT_FAMILY;
+    }
+
     function renderWorks() {
       const grid = document.getElementById('works-grid');
       if (!grid) return;
@@ -1150,12 +1222,14 @@
         el.textContent = value || '';
         return el;
       };
-      const colors = ['navy', 'crimson', 'forest', 'slate'];
-      worksData.forEach((w, index) => {
+      worksData.forEach(w => {
+        const family = paperColorFamily(w);
         const slot = document.createElement('div');
         slot.className = 'shelf-slot';
         const card = document.createElement('a');
-        card.className = 'shelf-book cover-' + colors[index % colors.length];
+        card.className = 'shelf-book cover-' + family.key;
+        card.setAttribute('data-discipline', family.label);
+        card.title = family.label + '｜' + w.title;
         card.href = w.url;
         card.target = '_blank';
         card.rel = 'noopener noreferrer';
