@@ -80,6 +80,10 @@ async function loadPapers(token) {
       const maturity = value(props['研究成熟度']).trim();
       const status = value(props['状態']).trim();
       const field = value(props['主学問分野']).trim();
+      const subfield = value(props['分野']).trim();
+      const specialties = (props['専門領域']?.type === 'multi_select'
+        ? props['専門領域'].multi_select || []
+        : []).map(option => option.name).filter(Boolean);
       works.push({
         id: page.id,
         paperId: notionId,
@@ -90,6 +94,8 @@ async function loadPapers(token) {
         maturity,
         status,
         field,
+        subfield,
+        specialties,
         updatedAt: page.last_edited_time || '',
         url: page.url || '',
       });
