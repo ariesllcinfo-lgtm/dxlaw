@@ -34,13 +34,13 @@ jobs:
           # GitHub push can finish before the Cloudflare deployment; wait for the grouped-page marker.
           for i in $(seq 1 18); do
             curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ -o /tmp/dxlaw-home.html
-            if grep -q 'width:60px; min-width:60px; padding-left:5px;' /tmp/dxlaw-home.html && ! grep -q 'data-group-start' /tmp/dxlaw-home.html; then break; fi
+            if grep -q 'flex:0 0 20%; width:20%; min-width:0; max-width:20%;' /tmp/dxlaw-home.html && ! grep -q 'data-group-start' /tmp/dxlaw-home.html; then break; fi
             echo "New grouping deployment not yet visible (attempt $i)"
             sleep 5
           done
           grep -q 'column-gap:0;' /tmp/dxlaw-home.html
-          grep -q 'width:68px; min-width:68px; padding-left:6px;' /tmp/dxlaw-home.html
-          grep -q 'width:60px; min-width:60px; padding-left:5px;' /tmp/dxlaw-home.html
+          grep -q 'width:76px; min-width:76px; padding-left:7px;' /tmp/dxlaw-home.html
+          grep -q 'flex:0 0 20%; width:20%; min-width:0; max-width:20%;' /tmp/dxlaw-home.html
           ! grep -q 'data-group-start' /tmp/dxlaw-home.html
           grep -q 'id="paper-sort"' /tmp/dxlaw-home.html
           grep -q 'PAPERS_API_URL' /tmp/dxlaw-home.html
@@ -108,5 +108,15 @@ jobs:
           app.setPaperSort('color');
           if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
             throw Error('Color sort not restored');
-          console.log('Verified gapless single shelf, grouping and interactive sorting');
+          // Five equal responsive columns fit inside the mobile shelf at all common portrait widths.
+          if (!h.includes('@media(max-width:480px)')) throw Error('Mobile breakpoint missing');
+          if (!h.includes('#works-grid .shelf-book { width:100%; min-width:0; max-width:100%;')) throw Error('Responsive book width missing');
+          if (!h.includes('#works-grid.bookshelf { display:flex; flex-wrap:wrap; gap:0; overflow-x:hidden; padding-left:6px; padding-right:6px; }')) throw Error('Mobile shelf bounds missing');
+          for (const viewport of [320, 360, 375, 390, 414, 430, 480]) {
+            // The main site has 16px side gutters on mobile and the shelf has 6px inner gutters.
+            const usable = viewport - 32 - 12;
+            const spine = usable / 5;
+            if (spine < 50 || Math.abs(spine * 5 - usable) > 1e-8) throw Error('Five books do not fit: ' + viewport);
+          }
+          console.log('Verified gapless single shelf, grouping, interactive sorting and five-across mobile width calculations');
           NODE
