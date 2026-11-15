@@ -1,0 +1,33 @@
+name: Verify DX Law Notion paper bookshelf
+on:
+  push:
+    paths:
+      - .github/workflows/verify-paper-shelf.yml
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production papers endpoint returns strict Notion paper data
+        run: |
+          set -euo pipefail
+          url='https://dxlaw.aries-llcinfo.workers.dev/api/papers'
+          for i in 1 2 3 4 5; do
+            status=$(curl -L --silent --show-error --output /tmp/papers.json --write-out '%{http_code}' --max-time 20 "$url" || true)
+            echo "Papers endpoint HTTP status: $status"
+            if [ "$status" = 200 ]; then break; fi
+            sleep 10
+          done
+          test "$status" = 200
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('/tmp/papers.json','utf8'));
+          if(d.source!=='notion-paper-repository'||!Array.isArray(d.works))throw Error('Unexpected source');
+          if(d.works.some(w=>w.type!=='論文'))throw Error('Non-paper entry returned');
+          console.log('Verified live Notion paper count:',d.works.length);
+          console.log('Includes at least one paper:',d.works.length>0);
+          NODE
+      - name: Verify the public page contains the new bookshelf
+        run: |
+          set -euo pipefail
+          curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ | grep -q 'PAPERS_API_URL'
