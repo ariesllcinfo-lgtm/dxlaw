@@ -30,4 +30,6 @@ jobs:
       - name: Verify the public page contains the new bookshelf
         run: |
           set -euo pipefail
-          curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ | grep -q 'PAPERS_API_URL'
+          curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ -o /tmp/dxlaw-home.html
+          grep -q 'PAPERS_API_URL' /tmp/dxlaw-home.html
+          grep -q '論文リポジトリ</h2>' /tmp/dxlaw-home.html
