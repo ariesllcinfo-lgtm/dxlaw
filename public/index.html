@@ -550,23 +550,17 @@
       <section id="works" class="mb-24">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3.5 mb-8 gap-4">
           <div>
-            <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Monographs &amp; Archives</span>
+            <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Academic Papers / Notion</span>
             <div class="flex flex-wrap items-baseline gap-3 mt-0.5">
-              <h2 class="font-serif text-2xl font-bold text-academic-navy">Publications &amp; Featured Works</h2>
-              <span class="text-xs text-stone-500 font-serif">主要研究業績・叢書（クリックで要旨・目次・本文を閲覧）</span>
+              <h2 class="font-serif text-2xl font-bold text-academic-navy">論文リポジトリ</h2>
+              <span class="text-xs text-stone-500 font-serif">書籍種別が「論文」の研究のみ表示。クリックするとNotionの該当ページを開きます。</span>
             </div>
           </div>
-          <!-- Works Category Filter -->
-          <div class="flex flex-wrap gap-1.5 text-xs">
-            <button onclick="filterWorks('all')" data-wfilter="all" class="works-filter-btn px-3 py-1 bg-academic-navy text-white font-mono text-[11px] transition">All</button>
-            <button onclick="filterWorks('monograph')" data-wfilter="monograph" class="works-filter-btn px-3 py-1 bg-academic-stone text-stone-700 hover:bg-stone-300/70 font-mono text-[11px] transition">Monograph</button>
-            <button onclick="filterWorks('article')" data-wfilter="article" class="works-filter-btn px-3 py-1 bg-academic-stone text-stone-700 hover:bg-stone-300/70 font-mono text-[11px] transition">Article</button>
-            <button onclick="filterWorks('note')" data-wfilter="note" class="works-filter-btn px-3 py-1 bg-academic-stone text-stone-700 hover:bg-stone-300/70 font-mono text-[11px] transition">Note</button>
-          </div>
+          <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
         </div>
 
         <div id="works-grid" class="bookshelf">
-          <div class="col-span-full py-12 text-center text-sm text-stone-400 font-serif">Notionから研究業績データを読み込んでいます...</div>
+          <div class="col-span-full py-12 text-center text-sm text-stone-400 font-serif">Notionの論文リポジトリを読み込んでいます...</div>
         </div>
       </section>
 
@@ -787,6 +781,7 @@
   <script>
     // ★プライマリエンドポイント（プロキシ設定済みの /api/cms）と、直接通信用のバックアップGAS URL
     const GAS_API_URL = '/api/cms';
+    const PAPERS_API_URL = '/api/papers';
 
     // ローカルプレビュー・オフライン時でも画面を美しく保つフォールバックデータ
     const FALLBACK_DATA = {
@@ -877,6 +872,9 @@
     let slides = [];
     let newsItems = [];
     let worksData = [];
+    let cmsWorksData = [];
+    let paperSyncError = false;
+    let paperRefreshInFlight = false;
     let currentSlide = 0;
     let slideTimer = null;
 
@@ -906,7 +904,7 @@
 
         slides = (data.slides && data.slides.length) ? data.slides : FALLBACK_DATA.slides;
         newsItems = (data.news && data.news.length) ? data.news : FALLBACK_DATA.news;
-        worksData = (data.works && data.works.length) ? data.works : FALLBACK_DATA.works;
+        cmsWorksData = (data.works && data.works.length) ? data.works : FALLBACK_DATA.works;
 
         if (Array.isArray(data.profile) && data.profile[0]) {
           const p = data.profile[0];
@@ -977,7 +975,6 @@
         currentSlide = 0;
         renderSlide();
         renderNews('all');
-        renderWorks('all');
         startSlideAutoPlay();
 
         dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-emerald-400';
@@ -991,14 +988,51 @@
         console.warn('CMS Fetch Fallback Activated:', err);
         slides = FALLBACK_DATA.slides;
         newsItems = FALLBACK_DATA.news;
-        worksData = FALLBACK_DATA.works;
+        cmsWorksData = FALLBACK_DATA.works;
         renderSlide();
         renderNews('all');
-        renderWorks('all');
 
         dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-amber-500';
         ping.className = 'hidden';
         text.textContent = 'Archive Mode (Local Fallback Data)';
+      }
+    }
+
+
+    // Separate read-only live feed from the actual Notion 論文リポジトリ.
+    // Never substitute hard-coded works when the paper feed fails.
+    async function loadPapersFromNotion() {
+      if (paperRefreshInFlight) return;
+      paperRefreshInFlight = true;
+      const status = document.getElementById('paper-sync-status');
+      try {
+        const response = await fetch(PAPERS_API_URL, {cache:'no-cache'});
+        if (!response.ok) throw new Error('Papers API HTTP ' + response.status);
+        const data = await response.json();
+        if (!Array.isArray(data.works)) throw new Error('Invalid papers payload');
+        worksData = data.works.filter(w => {
+          if (w.type !== '論文' || !String(w.title || '').trim()) return false;
+          try {
+            const url = new URL(w.url);
+            return url.protocol === 'https:' && (
+              url.hostname === 'notion.so' || url.hostname.endsWith('.notion.so') ||
+              url.hostname === 'app.notion.com' || url.hostname.endsWith('.notion.site')
+            );
+          } catch (_) {
+            return false;
+          }
+        });
+        paperSyncError = false;
+        renderWorks();
+        status.textContent = 'Notion自動同期：' + worksData.length + '件';
+      } catch (error) {
+        console.warn('Notion papers could not be loaded:', error);
+        paperSyncError = true;
+        worksData = [];
+        renderWorks();
+        status.textContent = 'Notion論文同期エラー';
+      } finally {
+        paperRefreshInFlight = false;
       }
     }
 
@@ -1097,28 +1131,43 @@
       renderNews(category);
     }
 
-    function renderWorks(filterCategory = 'all') {
+    function renderWorks() {
       const grid = document.getElementById('works-grid');
-      const filtered = filterCategory === 'all' ? worksData : worksData.filter(w => String(w.category || '').toLowerCase() === filterCategory);
+      if (!grid) return;
       grid.replaceChildren();
-      if (!filtered.length) {
+      if (!worksData.length) {
         const message = document.createElement('p');
         message.className = 'shelf-empty';
-        message.textContent = '該当する研究業績はありません。';
+        message.textContent = paperSyncError
+          ? '論文リポジトリを取得できませんでした。Notion連携の設定を確認してください。'
+          : '「書籍種別：論文」に設定された論文はまだありません。';
         grid.append(message);
         return;
       }
-      const textEl = (tag, cls, value) => { const el = document.createElement(tag); el.className = cls; el.textContent = value || ''; return el; };
+      const textEl = (tag, cls, value) => {
+        const el = document.createElement(tag);
+        el.className = cls;
+        el.textContent = value || '';
+        return el;
+      };
       const colors = ['navy', 'crimson', 'forest', 'slate'];
-      filtered.forEach((w, index) => {
+      worksData.forEach((w, index) => {
         const slot = document.createElement('div');
         slot.className = 'shelf-slot';
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'shelf-book cover-' + (colors.includes(String(w.coverStyle || '').toLowerCase()) ? String(w.coverStyle).toLowerCase() : colors[index % colors.length]);
-        card.setAttribute('aria-label', (w.title || '研究業績') + 'の要旨・目次を見る');
-        card.addEventListener('click', () => openWorkModal(w.id));
-        card.append(textEl('span', 'shelf-series', w.type || '研究'), textEl('span', 'shelf-rule', ''), textEl('span', 'shelf-title', w.title), textEl('span', 'shelf-subtitle', w.subtitle), textEl('span', 'shelf-author', w.author || '安藤 和樹'), textEl('span', 'shelf-open', '要旨・目次を見る  ↗'));
+        const card = document.createElement('a');
+        card.className = 'shelf-book cover-' + colors[index % colors.length];
+        card.href = w.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.setAttribute('aria-label', (w.title || '論文') + 'をNotionで開く');
+        card.append(
+          textEl('span', 'shelf-series', w.paperId || w.field || '研究論文'),
+          textEl('span', 'shelf-rule', ''),
+          textEl('span', 'shelf-title', w.title),
+          textEl('span', 'shelf-subtitle', w.subtitle),
+          textEl('span', 'shelf-author', w.maturity ? '研究段階：' + w.maturity : '論文'),
+          textEl('span', 'shelf-open', 'Notionで開く ↗')
+        );
         slot.append(card);
         grid.append(slot);
       });
@@ -1136,7 +1185,7 @@
     }
 
     function openWorkModal(workId) {
-      const w = worksData.find(item => item.id === workId);
+      const w = worksData.find(item => item.id === workId) || cmsWorksData.find(item => item.id === workId);
       if (!w) return;
       const tocList = Array.isArray(w.toc) ? w.toc : String(w.toc || '').split('\n').filter(Boolean);
 
@@ -1207,7 +1256,14 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadFromNotion();
+      loadFromNotion();  // news, slides, profile
+      loadPapersFromNotion();  // bookshelf: ONLY Notion book type 論文
+      setInterval(() => {
+        if (!document.hidden) loadPapersFromNotion();
+      }, 5 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) loadPapersFromNotion();
+      });
     });
   </script>
 
