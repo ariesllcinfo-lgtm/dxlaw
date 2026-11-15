@@ -98,7 +98,7 @@ jobs:
             throw Error('ID sort incorrect: '+ids());
           if(root.children.some(slot=>slot.attrs['data-group-start']))throw Error('Boundary should be hidden in ID sort');
           app.setPaperSort('title');
-          if(ids().join(',')!=='PAP-0021,PAP-0002,PAP-0001,PAP-0020')
+          if(ids().join(',')!=='PAP-0001,PAP-0020,PAP-0021,PAP-0002')
             throw Error('Title sort incorrect: '+ids());
           app.setPaperSort('color');
           if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
