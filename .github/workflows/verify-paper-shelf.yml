@@ -24,6 +24,7 @@ jobs:
           const d=JSON.parse(fs.readFileSync('/tmp/papers.json','utf8'));
           if(d.source!=='notion-paper-repository'||!Array.isArray(d.works))throw Error('Unexpected source');
           if(d.works.some(w=>w.type!=='論文'))throw Error('Non-paper entry returned');
+          if(d.works.some(w=>!Array.isArray(w.specialties)||typeof w.subfield!=='string'))throw Error('Notion subject information missing');
           console.log('Verified live Notion paper count:',d.works.length);
           console.log('Includes at least one paper:',d.works.length>0);
           NODE
@@ -33,3 +34,29 @@ jobs:
           curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ -o /tmp/dxlaw-home.html
           grep -q 'PAPERS_API_URL' /tmp/dxlaw-home.html
           grep -q '論文リポジトリ</h2>' /tmp/dxlaw-home.html
+          node - <<'NODE'
+          const fs=require('fs');
+          const h=fs.readFileSync('/tmp/dxlaw-home.html','utf8');
+          for(const v of ['paper-color-legend','cover-admin','cover-finance','cover-medical','cover-literature','const PAPER_FAMILY_RULES = [']) {
+            if (!h.includes(v)) throw Error('Missing color marker: '+v);
+          }
+          const start=h.indexOf('const PAPER_FAMILY_RULES = [');
+          const end=h.indexOf('    function renderWorks()',start);
+          if(start<0||end<0)throw Error('Color mapping function not found');
+          const resolve=Function(h.slice(start,end)+';return paperColorFamily;')();
+          const cases=[
+            [{field:'法学',subfield:'法学',specialties:['行政法','補助金法']},'admin'],
+            [{field:'法学',subfield:'法学',specialties:['有価証券法','民法']},'finance'],
+            [{field:'法学',subfield:'医事法',specialties:['医事法']},'medical'],
+            [{field:'法学',subfield:'法学',specialties:['法情報学','AIガバナンス']},'info'],
+            [{field:'経営学',subfield:'経営学',specialties:['金融機関経営']},'economy'],
+            [{field:'文学',subfield:'文学',specialties:['比較文学']},'literature'],
+            [{field:'法学',subfield:'不動産法',specialties:['不動産法','比較法史']},'civil'],
+            [{field:'法学',subfield:'法学',specialties:[]},'other']
+          ];
+          for(const [input,expected] of cases) {
+            const actual=resolve(input).key;
+            if(actual!==expected)throw Error('Expected '+expected+' got '+actual+' for '+JSON.stringify(input));
+          }
+          console.log('Verified Notion-based subject color mappings:',cases.length);
+          NODE
