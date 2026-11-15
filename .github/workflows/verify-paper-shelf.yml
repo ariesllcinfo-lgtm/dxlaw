@@ -92,16 +92,17 @@ jobs:
           if(root.children.length!==4)throw Error('Expected four books in ONE shelf');
           if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
             throw Error('Default sort did not cluster same-colour books');
-          if(root.children[2].attrs['data-group-start']!=='true')throw Error('Missing subtle group boundary');
+          if(h.includes('data-group-start'))throw Error('Old discipline spacing still present');
+          if(!h.includes('.bookshelf { gap:0; column-gap:0; }'))throw Error('Shelf gap is not zero');
           app.setPaperSort('id');
           if(ids().join(',')!=='PAP-0001,PAP-0002,PAP-0020,PAP-0021')
             throw Error('ID sort incorrect: '+ids());
-          if(root.children.some(slot=>slot.attrs['data-group-start']))throw Error('Boundary should be hidden in ID sort');
+          if(root.children.some(slot=>slot.attrs['data-group-start']))throw Error('A book has unexpected spacing');
           app.setPaperSort('title');
           if(ids().join(',')!=='PAP-0001,PAP-0020,PAP-0021,PAP-0002')
             throw Error('Title sort incorrect: '+ids());
           app.setPaperSort('color');
           if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
             throw Error('Color sort not restored');
-          console.log('Verified single shelf, grouping and interactive sorting');
+          console.log('Verified gapless single shelf, grouping and interactive sorting');
           NODE
