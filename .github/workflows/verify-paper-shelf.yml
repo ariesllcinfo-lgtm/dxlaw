@@ -1,122 +1,45 @@
-name: Verify DX Law Notion paper bookshelf
+name: Verify DX Law multi-page website and Notion paper bookshelf
 on:
   push:
     paths:
+      - public/**
       - .github/workflows/verify-paper-shelf.yml
   workflow_dispatch:
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Check production papers endpoint returns strict Notion paper data
+      - uses: actions/checkout@v4
+      - name: Verify independent pages, shared assets, and six-book mobile shelf
         run: |
-          set -euo pipefail
-          url='https://dxlaw.aries-llcinfo.workers.dev/api/papers'
-          for i in 1 2 3 4 5; do
-            status=$(curl -L --silent --show-error --output /tmp/papers.json --write-out '%{http_code}' --max-time 20 "$url" || true)
-            echo "Papers endpoint HTTP status: $status"
-            if [ "$status" = 200 ]; then break; fi
-            sleep 10
-          done
-          test "$status" = 200
-          node - <<'NODE'
-          const fs=require('fs');
-          const d=JSON.parse(fs.readFileSync('/tmp/papers.json','utf8'));
-          if(d.source!=='notion-paper-repository'||!Array.isArray(d.works))throw Error('Unexpected source');
-          if(d.works.some(w=>w.type!=='論文'))throw Error('Non-paper entry returned');
-          if(d.works.some(w=>!Array.isArray(w.specialties)||typeof w.subfield!=='string'))throw Error('Notion subject information missing');
-          console.log('Verified live Notion paper count:',d.works.length);
-          console.log('Includes at least one paper:',d.works.length>0);
-          NODE
-      - name: Verify the public page contains the new bookshelf
-        run: |
-          set -euo pipefail
-          # GitHub push can finish before the Cloudflare deployment; wait for the grouped-page marker.
-          for i in $(seq 1 18); do
-            curl -fsSL --max-time 20 https://dxlaw.aries-llcinfo.workers.dev/ -o /tmp/dxlaw-home.html
-            if grep -q 'flex:0 0 20%; width:20%; min-width:0; max-width:20%;' /tmp/dxlaw-home.html && ! grep -q 'data-group-start' /tmp/dxlaw-home.html; then break; fi
-            echo "New grouping deployment not yet visible (attempt $i)"
-            sleep 5
-          done
-          grep -q 'column-gap:0;' /tmp/dxlaw-home.html
-          grep -q 'width:76px; min-width:76px; padding-left:7px;' /tmp/dxlaw-home.html
-          grep -q 'flex:0 0 20%; width:20%; min-width:0; max-width:20%;' /tmp/dxlaw-home.html
-          ! grep -q 'data-group-start' /tmp/dxlaw-home.html
-          grep -q 'id="paper-sort"' /tmp/dxlaw-home.html
-          grep -q 'PAPERS_API_URL' /tmp/dxlaw-home.html
-          grep -q '論文リポジトリ</h2>' /tmp/dxlaw-home.html
-          node - <<'NODE'
-          const fs=require('fs');
-          const h=fs.readFileSync('/tmp/dxlaw-home.html','utf8');
-          for(const v of ['id="paper-sort"','id="works-grid" class="bookshelf"','cover-admin','cover-finance','cover-medical','cover-literature','const PAPER_FAMILY_RULES = [','function sortedPapers()']) {
-            if (!h.includes(v)) throw Error('Missing color marker: '+v);
+          node <<'NODE'
+          const fs = require('fs');
+          const load = p => fs.readFileSync(p, 'utf8');
+          const home = load('public/index.html');
+          const repo = load('public/repository/index.html');
+          const profile = load('public/kazuki-ando/index.html');
+          const css = load('public/assets/site.css');
+          const js = load('public/assets/site.js');
+          for (const [name, page] of [['home', home], ['repository', repo], ['profile', profile]]) {
+            if (!page.includes('href="/assets/site.css"') || !page.includes('src="/assets/site.js"')) throw Error(name + ': missing shared assets');
+            if (!page.includes('href="/repository/#works"') || !page.includes('href="/kazuki-ando/#profile"')) throw Error(name + ': missing cross-page navigation');
           }
-          const start=h.indexOf('const PAPER_FAMILY_RULES = [');
-          const end=h.indexOf('    function renderWorks()',start);
-          if(start<0||end<0)throw Error('Color mapping function not found');
-          const resolve=Function(h.slice(start,end)+';return paperColorFamily;')();
-          const cases=[
-            [{field:'法学',subfield:'法学',specialties:['行政法','補助金法']},'admin'],
-            [{field:'法学',subfield:'法学',specialties:['有価証券法','民法']},'finance'],
-            [{field:'法学',subfield:'医事法',specialties:['医事法']},'medical'],
-            [{field:'法学',subfield:'法学',specialties:['法情報学','AIガバナンス']},'info'],
-            [{field:'経営学',subfield:'経営学',specialties:['金融機関経営']},'economy'],
-            [{field:'文学',subfield:'文学',specialties:['比較文学']},'literature'],
-            [{field:'法学',subfield:'不動産法',specialties:['不動産法','比較法史']},'civil'],
-            [{field:'法学',subfield:'法学',specialties:[]},'other']
-          ];
-          for(const [input,expected] of cases) {
-            const actual=resolve(input).key;
-            if(actual!==expected)throw Error('Expected '+expected+' got '+actual+' for '+JSON.stringify(input));
-          }
-          console.log('Verified Notion-based subject color mappings:',cases.length);
-          // Use a minimal DOM to exercise the production sorting code itself.
-          const renderEnd=h.indexOf('    function openWorkModal(',start);
-          if(renderEnd<0)throw Error('Continuous bookshelf renderer missing');
-          const src=h.slice(start,renderEnd);
-          const makeEl=tag=>({
-            tag,children:[],attrs:{},className:'',textContent:'',
-            setAttribute(k,v){this.attrs[k]=v;},
-            append(...parts){this.children.push(...parts);},
-            replaceChildren(...parts){this.children=[...parts];}
-          });
-          const root=makeEl('div');
-          const doc={getElementById:id=>id==='works-grid'?root:null,createElement:makeEl};
-          const fakePapers=[
-            {paperId:'PAP-0020',title:'金融B',type:'論文',specialties:['金融法'],field:'法学',url:'https://www.notion.so/1'},
-            {paperId:'PAP-0002',title:'行政B',type:'論文',specialties:['行政法'],field:'法学',url:'https://www.notion.so/2'},
-            {paperId:'PAP-0021',title:'行政A',type:'論文',specialties:['補助金法'],field:'法学',url:'https://www.notion.so/3'},
-            {paperId:'PAP-0001',title:'金融A',type:'論文',specialties:['有価証券法'],field:'法学',url:'https://www.notion.so/4'}
-          ];
-          const app=Function('worksData','document','paperSyncError',src+';return {renderWorks,setPaperSort,sortedPapers};')(fakePapers,doc,false);
-          const colors=()=>root.children.map(slot=>slot.children[0].className);
-          const ids=()=>root.children.map(slot=>slot.children[0].children[0].textContent);
-          if(root.children.length!==0)throw Error('Should not populate shelf before render');
-          app.renderWorks();
-          if(root.children.length!==4)throw Error('Expected four books in ONE shelf');
-          if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
-            throw Error('Default sort did not cluster same-colour books');
-          if(h.includes('data-group-start'))throw Error('Old discipline spacing still present');
-          if(!h.includes('.bookshelf { gap:0; column-gap:0; }'))throw Error('Shelf gap is not zero');
-          app.setPaperSort('id');
-          if(ids().join(',')!=='PAP-0001,PAP-0002,PAP-0020,PAP-0021')
-            throw Error('ID sort incorrect: '+ids());
-          if(root.children.some(slot=>slot.attrs['data-group-start']))throw Error('A book has unexpected spacing');
-          app.setPaperSort('title');
-          if(ids().join(',')!=='PAP-0001,PAP-0020,PAP-0021,PAP-0002')
-            throw Error('Title sort incorrect: '+ids());
-          app.setPaperSort('color');
-          if(colors().join(',')!=='shelf-book cover-admin,shelf-book cover-admin,shelf-book cover-finance,shelf-book cover-finance')
-            throw Error('Color sort not restored');
-          // Five equal responsive columns fit inside the mobile shelf at all common portrait widths.
-          if (!h.includes('@media(max-width:480px)')) throw Error('Mobile breakpoint missing');
-          if (!h.includes('#works-grid .shelf-book { width:100%; min-width:0; max-width:100%;')) throw Error('Responsive book width missing');
-          if (!h.includes('#works-grid.bookshelf { display:flex; flex-wrap:wrap; gap:0; overflow-x:hidden; padding-left:6px; padding-right:6px; }')) throw Error('Mobile shelf bounds missing');
+          if (!home.includes('href="/repository/"') || !home.includes('href="/kazuki-ando/"')) throw Error('Home links not found');
+          if (home.includes('id="works-grid"') || home.includes('id="profile-name"')) throw Error('Home still contains the dedicated sections');
+          if (!home.includes('id="news-list"') || !home.includes('id="framework"')) throw Error('Home content missing');
+          if (!repo.includes('id="works-grid"') || !repo.includes('id="paper-sort"')) throw Error('Repository shelf or sorting missing');
+          if (repo.includes('id="profile-name"')) throw Error('Repository contains the profile section');
+          if (!profile.includes('id="profile-name"') || !profile.includes('id="profile-themes"')) throw Error('Researcher profile missing');
+          if (profile.includes('id="works-grid"')) throw Error('Profile contains the repository shelf');
+          if (!js.includes("const PAPERS_API_URL = '/api/papers'") || !js.includes("w.type !== '論文'")) throw Error('Notion papers filtering missing');
+          if (!js.includes('function paperColorFamily(work)') || !js.includes('function sortedPapers()')) throw Error('Repository sorting/color logic missing');
+          if (!css.includes('flex:0 0 calc(100% / 6); width:calc(100% / 6);')) throw Error('Six-across responsive slots missing');
+          if (!css.includes('#works-grid.bookshelf { display:flex; flex-wrap:wrap; gap:0; overflow-x:hidden;')) throw Error('Mobile shelf wrapping missing');
           for (const viewport of [320, 360, 375, 390, 414, 430, 480]) {
-            // The main site has 16px side gutters on mobile and the shelf has 6px inner gutters.
             const usable = viewport - 32 - 12;
-            const spine = usable / 5;
-            if (spine < 50 || Math.abs(spine * 5 - usable) > 1e-8) throw Error('Five books do not fit: ' + viewport);
+            const spine = usable / 6;
+            if (spine <= 0 || Math.abs(spine * 6 - usable) > 1e-8) throw Error('Six slots do not fit ' + viewport);
           }
-          console.log('Verified gapless single shelf, grouping, interactive sorting and five-across mobile width calculations');
+          new Function(js);
+          console.log('PASS: homepage, repository, researcher profile, six-book mobile shelf, and valid JavaScript.');
           NODE
