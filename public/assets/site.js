@@ -562,7 +562,7 @@
         message.className = 'shelf-empty';
         message.textContent = paperSyncError
           ? '論文リポジトリを取得できませんでした。Notion連携の設定を確認してください。'
-          : '「書籍種別：論文」に設定された論文はまだありません。';
+          : '公開中の論文はありません。Notionの「書籍種別：論文」と「公開可」設定をご確認ください。';
         shelf.append(message);
         return;
       }
