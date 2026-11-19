@@ -401,6 +401,65 @@
       {value: 'Ⅳ 法的責任と経済的リスク', description: '契約上の責任と実質的な経済リスクの分離'},
       {value: 'Ⅴ 公的配分と係数統治（育成）', description: '公的資金の配分係数と実際の負担帰着を検証する育成系列'}
     ];
+    // Only the explicit Notion flag moves a paper to the separate legal-informatics collection.
+    // The ordinary discipline taxonomy and I-V research programs remain unchanged.
+    function ordinaryPapers() {
+      return worksData.filter(work => work.legalInformatics !== true);
+    }
+
+    function renderLegalInformatics() {
+      const list = document.getElementById('legal-informatics-list');
+      if (!list) return;
+      list.replaceChildren();
+
+      const flagged = worksData.filter(work => work.legalInformatics === true).sort((a, b) => {
+        const rank = work => work.legalInformaticsCategory === '形式検証・規範モデル' ? 0
+          : work.legalInformaticsCategory === 'AI・行政システム検証' ? 1 : 2;
+        return rank(a) - rank(b) || comparePaperIds(a, b);
+      });
+      const count = document.getElementById('legal-informatics-count');
+      if (count) count.textContent = paperSyncError ? 'Notion同期エラー' : flagged.length + '件の研究論文';
+
+      if (!flagged.length) {
+        const message = document.createElement('p');
+        message.className = 'text-sm text-stone-600 font-serif py-5';
+        message.textContent = paperSyncError ? 'Notionから法情報学研究を取得できませんでした。' : '法情報学研究の登録論文はありません。';
+        list.append(message);
+        return;
+      }
+      for (const work of flagged) {
+        const card = document.createElement('a');
+        card.className = 'block border border-academic-line bg-white p-5 sm:p-6 hover:border-academic-gold hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-academic-gold transition';
+        card.href = work.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.setAttribute('aria-label', work.title + '：法情報学研究論文をNotionで開く');
+
+        const category = document.createElement('span');
+        category.className = 'inline-block text-[11px] font-serif tracking-wide px-2.5 py-1 border border-academic-gold/40 text-academic-navy bg-academic-stone';
+        category.textContent = work.legalInformaticsCategory || '法情報学研究';
+        const heading = document.createElement('h3');
+        heading.className = 'font-serif font-bold text-base text-academic-navy mt-3 leading-relaxed';
+        heading.textContent = work.title;
+        const subtitle = document.createElement('p');
+        subtitle.className = 'font-serif text-xs text-stone-600 mt-2 leading-relaxed';
+        subtitle.textContent = work.subtitle || '';
+        const meta = document.createElement('p');
+        meta.className = 'font-serif text-xs text-stone-500 mt-4 leading-relaxed';
+        const segments = [
+          work.maturity ? '研究段階：' + work.maturity : '',
+          work.researchSeries ? '法的テーマ：' + work.researchSeries : '',
+          work.seriesRole ? '系列内：' + work.seriesRole : ''
+        ].filter(Boolean);
+        meta.textContent = segments.join(' / ');
+        const link = document.createElement('span');
+        link.className = 'block font-serif text-xs text-academic-gold mt-4';
+        link.textContent = '論文をNotionで読む ↗';
+        card.append(category, heading, subtitle, meta, link);
+        list.append(card);
+      }
+    }
+
     const PAPER_SORT_MODES = ['series', 'color', 'id', 'title', 'updated'];
     let paperSortMode = 'series';
     let paperSeriesFilter = 'all';
@@ -415,14 +474,15 @@
       const container = document.getElementById('research-series-list');
       if (!container) return;
       container.replaceChildren();
+      const ordinary = ordinaryPapers();
       const selections = [
-        {value: 'all', label: 'すべての論文', description: '登録済み論文をすべて表示'},
+        {value: 'all', label: '通常研究系列の全論文', description: '法情報学専用書架を除いた研究論文'},
         ...RESEARCH_SERIES.map(s => ({value: s.value, label: s.value, description: s.description})),
         {value: 'unclassified', label: 'その他・未分類', description: '現時点で独立系列に割り当てていない論文'}
       ];
       for (const entry of selections) {
-        const count = entry.value === 'all' ? worksData.length
-          : worksData.filter(w => entry.value === 'unclassified'
+        const count = entry.value === 'all' ? ordinary.length
+          : ordinary.filter(w => entry.value === 'unclassified'
             ? !w.researchSeries : w.researchSeries === entry.value).length;
         const selected = paperSeriesFilter === entry.value;
         const button = document.createElement('button');
@@ -459,7 +519,7 @@
     }
 
     function sortedPapers() {
-      const sorted = worksData.filter(w => paperSeriesFilter === 'all'
+      const sorted = ordinaryPapers().filter(w => paperSeriesFilter === 'all'
         || (paperSeriesFilter === 'unclassified' ? !w.researchSeries : w.researchSeries === paperSeriesFilter));
       sorted.sort((a, b) => {
         if (paperSortMode === 'series') {
@@ -494,6 +554,7 @@
     function renderWorks() {
       const shelf = document.getElementById('works-grid');
       if (!shelf) return;
+      renderLegalInformatics();
       renderResearchSeries();
       shelf.replaceChildren();
       if (!worksData.length) {
@@ -510,7 +571,7 @@
       if (!visiblePapers.length) {
         const message = document.createElement('p');
         message.className = 'shelf-empty';
-        message.textContent = 'この研究系列に登録された論文はありません。';
+        message.textContent = 'この研究系列に登録された通常論文はありません。';
         shelf.append(message);
         return;
       }
