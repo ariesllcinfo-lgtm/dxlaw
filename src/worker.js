@@ -43,9 +43,10 @@ async function loadCMS(token) {
 
 const PAPER_SOURCE_ID = '3fa51522-3974-80bd-bbbd-000b4bd5eea2';
 const PAPER_TYPE = '論文';
+const PAPER_PUBLIC_FIELD = '公開可';
 
-// This endpoint intentionally returns ONLY rows explicitly classified as 論文.
-// Uncategorized entries, research notes and books are never inferred as papers.
+// Public API: only records explicitly classified as 論文 AND opted in with 公開可.
+// Unchecked, missing, archived, and trashed records must never appear in the response.
 async function loadPapers(token) {
   const works = [];
   let cursor = null;
@@ -60,7 +61,12 @@ async function loadPapers(token) {
       },
       body: JSON.stringify({
         page_size: 100,
-        filter: {property: '書籍種別', select: {equals: PAPER_TYPE}},
+        filter: {
+          and: [
+            {property: '書籍種別', select: {equals: PAPER_TYPE}},
+            {property: PAPER_PUBLIC_FIELD, checkbox: {equals: true}},
+          ],
+        },
         ...(cursor ? {start_cursor: cursor} : {}),
       }),
     });
@@ -74,8 +80,13 @@ async function loadPapers(token) {
       if (page.archived || page.in_trash) continue;
       const props = page.properties || {};
       if (value(props['書籍種別']) !== PAPER_TYPE) continue;
+      if (props[PAPER_PUBLIC_FIELD]?.type !== 'checkbox' || props[PAPER_PUBLIC_FIELD].checkbox !== true) continue;
       const title = value(props['論文タイトル']).trim();
       if (!title) continue;
+      const publicAbstract = value(props['公開要旨']).trim();
+      const author = value(props['著者']).trim() || '安藤 和樹';
+      const publicationDate = props['公開日']?.date?.start ||
+        props['最終更新日']?.date?.start || (page.last_edited_time || '').slice(0, 10);
       const notionId = value(props['論文ID']).trim();
       const maturity = value(props['研究成熟度']).trim();
       const researchSeries = value(props['研究系列']).trim();
@@ -95,6 +106,9 @@ async function loadPapers(token) {
         category: 'article',
         title,
         subtitle: value(props['サブタイトル']).trim(),
+        publicAbstract,
+        author,
+        publicationDate,
         maturity,
         researchSeries,
         seriesRole,
