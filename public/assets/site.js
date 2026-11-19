@@ -679,10 +679,15 @@
       if (e.key === 'Escape') closeModal();
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadFromNotion();  // homepage news/slides and author profile (if present)
+    // Bootstrap even when this shared script arrives after DOMContentLoaded.
+    // A late script load must not leave the repository in "loading" state forever.
+    let siteBooted = false;
+    function bootSite() {
+      if (siteBooted) return;
+      siteBooted = true;
+      if (document.getElementById('cms-status-dot')) loadFromNotion();
       if (document.getElementById('works-grid')) {
-        loadPapersFromNotion();  // repository: ONLY Notion book type 論文
+        loadPapersFromNotion();
         setInterval(() => {
           if (!document.hidden) loadPapersFromNotion();
         }, 5 * 60 * 1000);
@@ -690,4 +695,9 @@
           if (!document.hidden) loadPapersFromNotion();
         });
       }
-    });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootSite, {once: true});
+    } else {
+      bootSite();
+    }
