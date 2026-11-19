@@ -80,6 +80,8 @@ async function loadPapers(token) {
       const maturity = value(props['研究成熟度']).trim();
       const researchSeries = value(props['研究系列']).trim();
       const seriesRole = value(props['系列内位置']).trim();
+      const legalInformatics = props['法情報学研究']?.type === 'checkbox' && props['法情報学研究'].checkbox === true;
+      const legalInformaticsCategory = legalInformatics ? value(props['法情報学研究区分']).trim() : '';
       const status = value(props['状態']).trim();
       const field = value(props['主学問分野']).trim();
       const subfield = value(props['分野']).trim();
@@ -96,6 +98,8 @@ async function loadPapers(token) {
         maturity,
         researchSeries,
         seriesRole,
+        legalInformatics,
+        legalInformaticsCategory,
         status,
         field,
         subfield,
