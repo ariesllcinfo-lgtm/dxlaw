@@ -357,50 +357,46 @@
       renderNews(category);
     }
 
-    // Notionの「分野」「専門領域」「主学問分野」を優先順位付きで判定します。
-    // 書籍種別＝論文という本棚掲載条件には影響しません。
-    const PAPER_FAMILY_RULES = [
-      {key: 'admin', label: '行政法系', terms: ['行政法', '行政救済法', '補助金法', '財政法', '公共政策学']},
-      {key: 'finance', label: '金融法系', terms: ['金融法', '金融商品取引法', '有価証券法', '決済法', '信託法', '保険法', '通貨法', 'デジタル資産法']},
-      {key: 'medical', label: '医事・社会保障法系', terms: ['医事法', '社会保障法']},
-      {key: 'maritime', label: '海商・国際取引法系', terms: ['海商法', '国際取引法']},
-      {key: 'labor', label: '労働法系', terms: ['労働法']},
-      {key: 'civil', label: '民事・不動産法系', terms: ['民法', '物権法', '不動産法', '消費者法']},
-      {key: 'info', label: '情報法・AI系', terms: ['法情報学', '情報法', 'AIガバナンス', '数理社会科学']},
-      {key: 'history', label: '比較法・法制史系', terms: ['比較法', '法制史', '比較法史', 'イスラーム法']},
-      {key: 'economy', label: '経済・経営学系', terms: ['経済学', '経営学', '金融機関経営', '制度経済学', '経営戦略論', '政治経済学', '貨幣経済学', '金融政策論', '金融経済学']},
-      {key: 'literature', label: '文学系', terms: ['文学', '比較文学', '日本古典文学', '中国古典文学', '物語論', '神話研究', '宗教文学']}
+    // Notionの「研究系列」を背表紙の色の唯一の基準とする。
+    // 専門領域・学問分野は色分けに用いず、法情報学は別の方法論書架に表示する。
+    const RESEARCH_SERIES = [
+      {value: 'Ⅰ 制度的確定と損失帰属', key: 'series-i', description: '権利・給付の確定、誤記録、訂正、最終的な損失負担'},
+      {value: 'Ⅱ AIによる行為帰属と責任', key: 'series-ii', description: 'AI・情報システムが実行する行為の帰属と責任'},
+      {value: 'Ⅲ 財産拘束と比較財産法', key: 'series-iii', description: 'ワクフ・登記・信託を横断する財産拘束と処分権限'},
+      {value: 'Ⅳ 法的責任と経済的リスク', key: 'series-iv', description: '契約上の責任と実質的な経済リスクの分離'},
+      {value: 'Ⅴ 公的配分と係数統治（育成）', key: 'series-v', description: '公的資金の配分係数と実際の負担帰着を検証する育成系列'}
     ];
-    const PAPER_DEFAULT_FAMILY = {key: 'other', label: 'その他'};
+    const UNCLASSIFIED_SERIES = {key: 'series-unclassified', value: '未分類'};
+    const PAPER_COLOR_ORDER = RESEARCH_SERIES.map(series => series.key).concat(UNCLASSIFIED_SERIES.key);
 
-    function paperColorFamily(work) {
-      const field = String(work.field || '').trim();
-      const terms = new Set([
-        ...(Array.isArray(work.specialties) ? work.specialties : []),
-        work.subfield || ''
-      ].map(item => String(item).trim()).filter(Boolean));
-      // 主学問分野が明示的に文学・経済・経営なら、個々の隣接専門領域より優先する。
-      if (field === '文学') return {key: 'literature', label: '文学系'};
-      if (field === '経済学' || field === '経営学') return {key: 'economy', label: '経済・経営学系'};
-      for (const group of PAPER_FAMILY_RULES) {
-        if (group.terms.some(term => terms.has(term))) return {key: group.key, label: group.label};
-      }
-      return PAPER_DEFAULT_FAMILY;
+    function paperResearchColor(work) {
+      return RESEARCH_SERIES.find(series => series.value === work.researchSeries) || UNCLASSIFIED_SERIES;
     }
 
-    // Fixed color order. Other sorts change book order without creating separate shelves.
-    const PAPER_GROUP_ORDER = [
-      'admin', 'finance', 'medical', 'info', 'civil', 'economy',
-      'literature', 'maritime', 'labor', 'history', 'other'
-    ];
-    // Research series are Notion-managed, orthogonal to discipline-based cover colors.
-    const RESEARCH_SERIES = [
-      {value: 'Ⅰ 制度的確定と損失帰属', description: '権利・給付の確定、誤記録、訂正、最終的な損失負担'},
-      {value: 'Ⅱ AIによる行為帰属と責任', description: 'AI・情報システムが実行する行為の帰属と責任'},
-      {value: 'Ⅲ 財産拘束と比較財産法', description: 'ワクフ・登記・信託を横断する財産拘束と処分権限'},
-      {value: 'Ⅳ 法的責任と経済的リスク', description: '契約上の責任と実質的な経済リスクの分離'},
-      {value: 'Ⅴ 公的配分と係数統治（育成）', description: '公的資金の配分係数と実際の負担帰着を検証する育成系列'}
-    ];
+    function paperColorSwatch(key, label) {
+      const swatch = document.createElement('span');
+      swatch.className = 'paper-swatch swatch-' + key;
+      swatch.setAttribute('aria-hidden', 'true');
+      swatch.title = label;
+      return swatch;
+    }
+
+    function renderPaperColorLegend() {
+      const container = document.getElementById('paper-color-legend');
+      if (!container) return;
+      container.replaceChildren();
+      const entries = [
+        ...RESEARCH_SERIES.map(series => ({key: series.key, label: series.value})),
+        {key: UNCLASSIFIED_SERIES.key, label: '未分類'},
+        {key: 'legal-informatics', label: '法情報学（独立書架）'}
+      ];
+      for (const entry of entries) {
+        const item = document.createElement('span');
+        item.append(paperColorSwatch(entry.key, entry.label), document.createTextNode(entry.label));
+        container.append(item);
+      }
+    }
+
     // Only the explicit Notion flag moves a paper to the separate legal-informatics collection.
     // The ordinary discipline taxonomy and I-V research programs remain unchanged.
     function ordinaryPapers() {
@@ -429,7 +425,7 @@
       }
       for (const work of flagged) {
         const card = document.createElement('a');
-        card.className = 'block border border-academic-line bg-white p-5 sm:p-6 hover:border-academic-gold hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-academic-gold transition';
+        card.className = 'legal-informatics-paper block border border-academic-line bg-white p-5 sm:p-6 hover:border-academic-gold hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-academic-gold transition';
         card.href = work.url;
         card.target = '_blank';
         card.rel = 'noopener noreferrer';
@@ -492,8 +488,11 @@
         button.setAttribute('aria-pressed', String(selected));
         button.setAttribute('aria-label', entry.label + 'の論文を表示');
         const heading = document.createElement('span');
-        heading.className = 'block font-serif font-bold text-sm text-academic-navy leading-relaxed';
-        heading.textContent = entry.label;
+        heading.className = 'flex items-center gap-2 font-serif font-bold text-sm text-academic-navy leading-relaxed';
+        const colorKey = RESEARCH_SERIES.find(series => series.value === entry.value)?.key ||
+          (entry.value === 'unclassified' ? UNCLASSIFIED_SERIES.key : 'series-all');
+        button.classList.add('research-series-card', 'series-card-' + colorKey);
+        heading.append(paperColorSwatch(colorKey, entry.label), document.createTextNode(entry.label));
         const desc = document.createElement('span');
         desc.className = 'block text-xs text-stone-600 font-serif leading-relaxed mt-2';
         desc.textContent = entry.description;
@@ -530,8 +529,8 @@
           return roleRank(a.seriesRole) - roleRank(b.seriesRole) || comparePaperIds(a, b);
         }
         if (paperSortMode === 'color') {
-          const aRank = PAPER_GROUP_ORDER.indexOf(paperColorFamily(a).key);
-          const bRank = PAPER_GROUP_ORDER.indexOf(paperColorFamily(b).key);
+          const aRank = PAPER_COLOR_ORDER.indexOf(paperResearchColor(a).key);
+          const bRank = PAPER_COLOR_ORDER.indexOf(paperResearchColor(b).key);
           return aRank - bRank || comparePaperIds(a, b);
         }
         if (paperSortMode === 'title') {
@@ -554,6 +553,7 @@
     function renderWorks() {
       const shelf = document.getElementById('works-grid');
       if (!shelf) return;
+      renderPaperColorLegend();
       renderLegalInformatics();
       renderResearchSeries();
       shelf.replaceChildren();
@@ -583,15 +583,14 @@
         return el;
       };
       for (const work of visiblePapers) {
-        const family = paperColorFamily(work);
+        const series = paperResearchColor(work);
         const slot = document.createElement('div');
         slot.className = 'shelf-slot';
 
         const card = document.createElement('a');
-        card.className = 'shelf-book cover-' + family.key;
-        card.setAttribute('data-discipline', family.label);
-        card.title = (work.researchSeries ? work.researchSeries + '｜' : '') +
-          family.label + '｜' + work.title;
+        card.className = 'shelf-book cover-' + series.key;
+        card.setAttribute('data-research-series', series.value);
+        card.title = series.value + '｜' + work.title;
         card.href = work.url;
         card.target = '_blank';
         card.rel = 'noopener noreferrer';
