@@ -32,6 +32,30 @@
   .smallprint{font-size:13px;color:#6c7580}.source-links{padding-left:22px}.source-links li{margin-bottom:12px}.source-links a{color:#1f4670;text-underline-offset:3px}
   footer{background:var(--deep);color:#e5e7eb;padding:36px 0;font-size:13px}footer a{color:#e5e7eb;text-underline-offset:3px}.footer-inner{display:flex;gap:24px;justify-content:space-between;flex-wrap:wrap}
   @media(max-width:800px){.header-inner{min-height:73px}.menu-toggle{display:block}.nav{display:none;position:absolute;left:0;right:0;top:100%;background:#FBF9F5;border-bottom:1px solid var(--line);padding:18px 22px;flex-direction:column;align-items:stretch;gap:7px}.nav.open{display:flex}.nav a{padding:10px 3px}.card-grid{grid-template-columns:1fr}.layer{grid-template-columns:45px 1fr;gap:8px 13px}.layer span:last-child{grid-column:2}.hero{padding:43px 0}.hero h1{font-size:31px}.lead{font-size:15px}.quote{font-size:17px}.time-table{min-width:620px}section.content-section{padding:44px 0}.brand-main{font-size:17px}}
+
+  /* Notion is the single content source; these rules only present its blocks. */
+  .notion-content{max-width:920px;overflow-wrap:anywhere}
+  .notion-content h2{margin:45px 0 19px;border-bottom:1px solid var(--line);padding-bottom:12px;font-size:clamp(22px,3vw,30px);line-height:1.55}
+  .notion-content h3{margin:34px 0 13px;font-size:19px;line-height:1.55}
+  .notion-content h4{margin:26px 0 12px;color:var(--navy);font-size:16px}
+  .notion-content p{font-size:15px;line-height:2.1;margin:0 0 19px;white-space:pre-line}
+  .notion-content ul,.notion-content ol{margin:0 0 21px;padding-left:1.55em}
+  .notion-content li{font-size:15px;line-height:2;margin:8px 0;white-space:pre-line}
+  .notion-content li ul,.notion-content li ol{margin:6px 0 8px}
+  .notion-content a{color:#205b8f;text-underline-offset:3px;overflow-wrap:anywhere}
+  .notion-content blockquote,.notion-content aside{margin:22px 0;padding:16px 22px;border-left:3px solid var(--gold);background:var(--stone);font-size:15px;line-height:2}
+  .notion-content code{font-size:.93em;background:#ece9e3;padding:2px 5px}
+  .notion-content pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:18px 20px;border:1px solid var(--line);background:white;margin:18px 0 25px;font-size:14px}
+  .notion-content .notion-equation{font-family:Georgia,serif;background:#f1eee8}
+  .notion-content .notion-table-scroll{overflow-x:auto;margin:21px 0 30px;border:1px solid var(--line)}
+  .notion-content table{border-collapse:collapse;min-width:550px;width:100%;background:white;font-size:14px}
+  .notion-content th,.notion-content td{padding:13px 15px;border:1px solid var(--line);text-align:left;vertical-align:top;line-height:1.8}
+  .notion-content th{background:#eae6dd;color:var(--navy)}
+  .notion-content hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .notion-content .notion-child-link{display:block;margin:15px 0;padding:12px 16px;border:1px solid var(--line);background:white}
+  #programme-notion-status{color:#627083;padding:14px 0;font-size:14px}
+  #programme-notion-status[hidden]{display:none}
+  @media(max-width:700px){.notion-content h2{margin-top:33px}.notion-content th,.notion-content td{padding:10px}.hero h1{font-size:31px}}
 </style>
 </head>
 <body>
@@ -45,86 +69,165 @@
 </div>
 </header>
 <main id="top">
- <div class="hero"><div class="wrap">
-  <span class="eyebrow en">Research Programme / 2026–2029</span>
-  <h1 class="serif">法情報学・計算法制度科学<br>法制度から経営・経済への影響を予測する</h1>
-  <p class="sub">Legal Informatics × Computational Science of Legal Institutions</p>
-  <p class="lead">法情報学と計算法制度科学は一体の研究プログラムです。法律を情報・権限・決定・訂正・損失負担のシステムとして捉え、その違いが企業や行政の行動、投資、雇用、競争、社会的厚生にどう作用するかを説明・予測・検証します。</p>
-  <div class="status">研究計画 v1.0（2026年11月19日）／仮説段階・実証前</div>
-  
- </div></div>
- <section class="content-section" id="mission"><div class="wrap wide">
-  <div class="section-head"><span class="section-num">01 / Mission</span><h2 class="serif">研究目的と中心課題</h2></div>
-  <div class="objective-definition">
-   <span class="objective-label">Research Objective / 研究目的</span>
-   <p class="objective-text serif">法制度の構造と作動を形式化し、制度変更による権利・責任・企業行動・経済活動の変化を、説明・予測・検証する。</p>
-   <p class="objective-en en">Computational Science of Legal Institutions</p>
-  </div>
-  <div class="objective-explain">
-   <p>「<strong>構造</strong>」とは、誰がどの法的根拠で権利・義務を決定し、いつ確定させ、誤りをどう訂正できるかというルールの配置です。「<strong>作動</strong>」とは、申請・審査・決定・記録・支払・取消しなど、制度が実際に動く過程を指します。</p>
-   <p>この二つを数理モデルで表現し、制度が変わったときの<strong>権利・責任の分配</strong>を特定します。さらに、企業や行政の投資・資金調達・組織運営などの<strong>行動変化</strong>を通じ、雇用・競争・人材供給・社会的費用など<strong>経済活動への影響</strong>を検証します。</p>
-   <p>「<strong>説明</strong>」は結果が生まれた仕組みを明らかにすること、「<strong>予測</strong>」は制度変更後の結果を事前に推定すること、「<strong>検証</strong>」はデータ・反例・既存モデルとの比較によって推定の妥当性を評価することです。</p>
-  </div>
-  <p class="quote serif">誰が何を根拠に権利・負担を確定し、誤りをどう訂正し、その制度設計が経営と経済に何をもたらすのか。</p>
-  <p>権限配分・確定時点・訂正可能性・損失帰属を形式化し、制度改正が生み出す経営上・経済上の効果を比較します。単なる制度の紹介や抽象的な規範論ではなく、法律上の状態変化から実際の行動変化へ至るメカニズムを検証します。</p>
-  <p class="smallprint">法情報学を研究領域、計算法制度科学をその中核となる形式化・数理モデル・経営経済予測の方法論として一体的に扱います。計算法制度科学は方法論の仮称であり、新しい独立学問の成立や予測精度は未立証です。既存の法と経済学・制度分析の成果との比較を前提にします。</p>
+ <section class="hero"><div class="wrap">
+  <span class="eyebrow en">Research Programme / Legal Informatics</span>
+  <h1 class="serif">法情報学・計算法制度科学</h1>
+  <p class="sub">Computational Science of Legal Institutions</p>
+  <p class="lead" id="programme-title">統合研究プログラム</p>
+  <p class="smallprint" id="programme-updated" aria-live="polite">研究計画をNotionから取得しています。</p>
  </div></section>
- <section class="content-section" id="architecture"><div class="wrap">
-  <div class="section-head"><span class="section-num">02 / Architecture</span><h2 class="serif">研究を構成する五つの層</h2></div>
-  <div class="layers">
-   <div class="layer"><span class="number">01</span><strong>法制度の構造</strong><span>権利・義務、権限主体、法源、確定・取消し・訂正、最終損失の帰属</span></div>
-   <div class="layer"><span class="number">02</span><strong>行動の分析</strong><span>企業・行政・個人の選択、情報非対称、期待利益、限定合理性</span></div>
-   <div class="layer"><span class="number">03</span><strong>経営への影響</strong><span>投資、組織、資金調達、コンプライアンス、事業継続、キャッシュフロー</span></div>
-   <div class="layer"><span class="number">04</span><strong>経済への波及</strong><span>市場参入、競争、雇用、価格、生産性、社会厚生、財政負担</span></div>
-   <div class="layer"><span class="number">05</span><strong>実証と改訂</strong><span>原典照合、統計・因果推論、シミュレーション、予測評価、反証</span></div>
-  </div>
- </div></section>
- <section class="content-section" id="method"><div class="wrap wide">
-  <div class="section-head"><span class="section-num">03 / Methods</span><h2 class="serif">制度を計算可能な形にする</h2></div>
-  <p>法制度を「誰が、何を条件に、どの状態からどの状態へ移せるか」という状態遷移として表します。適法な決定と現実に到達できる決定を区別し、さらに訂正後も残る経済的損失を測定します。</p>
-  <div class="math">L = (A, N, S, T, C, R)<small>権限主体・規範・法的状態・許容遷移・手続制約・訂正／救済規則</small></div>
-  <p>制度変更による行動や費用の変化は、単純な比較モデルと照合します。因果効果を推定できるかはデータと識別条件に依存します。法的な論証と、経営・経済に関する経験的予測は、混同せず別々に検証します。</p>
- </div></section>
- <section class="content-section" id="pilots"><div class="wrap">
-  <div class="section-head"><span class="section-num">04 / Pilot Studies</span><h2 class="serif">最初の三つの実証領域</h2></div>
-  <div class="card-grid">
-   <article class="card"><span class="micro">PILOT A / Public Policy</span><h3 class="serif">理系学部新設と補助金</h3><p>補助金の交付条件が大学の学部選択・教員配置・設備投資をどう変え、実際に必要な理系人材の供給につながるかを検証します。</p><ul><li>制度条件と採択判断</li><li>大学の経営行動</li><li>卒業・採用実績と財政効率</li></ul></article>
-   <article class="card"><span class="micro">PILOT B / Health Finance</span><h3 class="serif">診療報酬の審査と支払</h3><p>審査・決定・支払・過誤調整の権限と時間差を分析し、医療機関の資金繰りと管理費用への影響を考察します。</p><ul><li>審査と支払の確定</li><li>返還・再審査・訂正</li><li>資金繰り・取引費用</li></ul></article>
-   <article class="card"><span class="micro">PILOT C / Financial Markets</span><h3 class="serif">記録型証券の権利帰属</h3><p>基準時・記録訂正・残高確定の違いが、決済リスクや取引コストにどう影響するかを比較します。</p><ul><li>記録と権利の帰属</li><li>訂正経路と期限</li><li>流動性・決済リスク</li></ul></article>
-  </div>
- </div></section>
- <section class="content-section" id="roadmap"><div class="wrap">
-  <div class="section-head"><span class="section-num">05 / Roadmap</span><h2 class="serif">三年間の研究ロードマップ</h2></div>
-  <div class="table-scroll"><table class="time-table">
-   <thead><tr><th scope="col">期間</th><th scope="col">主な研究内容</th><th scope="col">成果物</th></tr></thead><tbody>
-   <tr><td>0〜3か月</td><td>先行研究対照・概念辞書・法的状態遷移の設計</td><td>理論仕様 v0.1／テスト事例</td></tr>
-   <tr><td>3〜6か月</td><td>限定領域での法的原典照合・プロトタイプ</td><td>再現可能なモデル／照合表</td></tr>
-   <tr><td>6〜12か月</td><td>データと比較群の収集、予測性能の検証</td><td>検証報告／失敗例／予測誤差</td></tr>
-   <tr><td>12〜24か月</td><td>複数の法領域への適用、因果識別と比較</td><td>方法論論文／コード・データ辞書</td></tr>
-   <tr><td>24〜36か月</td><td>理論の可搬性・独自性・再現性の総括</td><td>体系書の構想／研究基盤</td></tr>
-   </tbody></table></div>
-  <p class="smallprint" style="margin-top:17px">研究開始からの相対期間であり、データの確保・法的検証・予測精度を踏まえて見直します。</p>
- </div></section>
- <section class="content-section" id="validation"><div class="wrap wide">
-  <div class="section-head"><span class="section-num">06 / Falsification</span><h2 class="serif">予測できなければ、理論を修正する</h2></div>
-  <p>研究プログラムの成否は、法制度を数式化したことではなく、法的に正確で、異なる領域へ移植でき、観測可能な結果を説明・予測し、第三者が反証できるかによって判断します。</p>
-  <p>検証では、法制度変数を組み込まない単純な基準モデルと比較し、モデルの付加価値を測定します。効果が確認できない場合は学問の新設を前提とせず、既存学問を横断する方法論へと位置づけ直します。</p>
-  <p class="smallprint">制度の法的妥当性の分析と、政策の経済的効果の因果識別は別の作業です。GDPなどの巨視的な精密予測を初期段階の成果として約束しません。</p>
- </div></section>
- <section class="content-section" id="sources"><div class="wrap wide">
-  <div class="section-head"><span class="section-num">07 / Research Documents</span><h2 class="serif">関連資料・研究計画</h2></div>
-  <ul class="source-links">
-   <li><a href="https://app.notion.com/p/41d515223974810b897cf2049d1a035d" target="_blank" rel="noopener noreferrer">統合研究計画全文：法情報学・計算法制度科学（Notion）</a></li>
-   <li><a href="https://app.notion.com/p/41d515223974818f97bbf22d5dc40a10" target="_blank" rel="noopener noreferrer">数理モデル v0.1：法的状態遷移・訂正可能性・経営経済効果（Notion）</a></li>
-   <li><a href="https://app.notion.com/p/41d515223974816fbea9f961a13a9a21" target="_blank" rel="noopener noreferrer">研究体系ガイド：中核4系列・育成1系列（Notion）</a></li>
-   <li><a href="https://app.notion.com/p/3fc51522397480af8e60f58f493eeb4a" target="_blank" rel="noopener noreferrer">確定権限の配置と決定の自己準拠（研究ノート）</a></li>
-   <li><a href="https://app.notion.com/p/3ff51522397480c48d5af4309b5f759b" target="_blank" rel="noopener noreferrer">制度的判断の確定と訂正可能性（研究ノート）</a></li>
-  </ul>
-  <p class="smallprint">本ページは研究計画を公開するもので、研究成果の確立・査読完了・研究分科会の発足を示すものではありません。個別論文の分類は既存の論文リポジトリで管理します。</p>
+ <section class="content-section" id="programme"><div class="wrap wide">
+  <div id="programme-notion-status" role="status" aria-live="polite">Notionの研究計画を読み込み中です。</div>
+  <article id="programme-notion-content" class="notion-content" aria-label="Notionから取得した研究プログラム"></article>
  </div></section>
 </main>
 <footer><div class="wrap footer-inner"><div><strong class="serif">DX法研究会</strong><div class="en">Research on Law &amp; Legal Informatics</div></div><div><a href="/">トップ</a>　<a href="/repository/">論文リポジトリ</a>　<a href="/kazuki-ando/">研究者プロフィール</a></div></div></footer>
 <script>
+
+function legalProgrammeUrl(value) {
+  try {
+    const url = new URL(value);
+    return ['https:', 'http:', 'mailto:'].includes(url.protocol) ? url.href : null;
+  } catch (_) {
+    return null;
+  }
+}
+function addNotionText(container, pieces) {
+  for (const piece of Array.isArray(pieces) ? pieces : []) {
+    let node = document.createTextNode(String(piece.text || '').replace(/<br\s*\/?>/gi, '\n'));
+    for (const [active, tag] of [
+      [piece.code, 'code'],
+      [piece.strikethrough, 's'],
+      [piece.underline, 'u'],
+      [piece.italic, 'em'],
+      [piece.bold, 'strong'],
+    ]) {
+      if (active) {
+        const wrapper = document.createElement(tag);
+        wrapper.appendChild(node);
+        node = wrapper;
+      }
+    }
+    const link = legalProgrammeUrl(piece.href);
+    if (link) {
+      const anchor = document.createElement('a');
+      anchor.href = link;
+      anchor.rel = 'noopener noreferrer';
+      if (link.startsWith('https:') || link.startsWith('http:')) anchor.target = '_blank';
+      anchor.appendChild(node);
+      node = anchor;
+    }
+    container.appendChild(node);
+  }
+}
+function renderNotionProgrammeBlock(block, container) {
+  const type = block.type;
+  if (type === 'table') {
+    const scroller = document.createElement('div');
+    scroller.className = 'notion-table-scroll';
+    const table = document.createElement('table');
+    for (const [index, row] of (block.children || []).entries()) {
+      if (row.type !== 'table_row') continue;
+      const tr = document.createElement('tr');
+      for (const cell of row.cells || []) {
+        const th = document.createElement(block.hasColumnHeader && index === 0 ? 'th' : 'td');
+        if (th.tagName === 'TH') th.scope = 'col';
+        addNotionText(th, cell);
+        tr.appendChild(th);
+      }
+      table.appendChild(tr);
+    }
+    scroller.appendChild(table);
+    container.appendChild(scroller);
+    return;
+  }
+  if (type === 'bulleted_list_item' || type === 'numbered_list_item') {
+    const tag = type === 'bulleted_list_item' ? 'ul' : 'ol';
+    let list = container.lastElementChild;
+    if (!list || list.tagName.toLowerCase() !== tag || list.dataset.notionList !== type) {
+      list = document.createElement(tag);
+      list.dataset.notionList = type;
+      container.appendChild(list);
+    }
+    const li = document.createElement('li');
+    addNotionText(li, block.richText);
+    list.appendChild(li);
+    for (const child of block.children || []) renderNotionProgrammeBlock(child, li);
+    return;
+  }
+  if (type === 'divider') {
+    container.appendChild(document.createElement('hr'));
+    return;
+  }
+  if (type === 'child_page' || type === 'bookmark') {
+    const a = document.createElement('a');
+    const href = legalProgrammeUrl(block.url);
+    if (!href) return;
+    a.href = href;
+    a.rel = 'noopener noreferrer';
+    a.target = '_blank';
+    a.className = 'notion-child-link';
+    a.textContent = block.title || block.url;
+    container.appendChild(a);
+    return;
+  }
+  if (type === 'equation' || type === 'code') {
+    const pre = document.createElement('pre');
+    if (type === 'equation') {
+      pre.className = 'notion-equation';
+      pre.textContent = block.expression || '';
+    } else {
+      const code = document.createElement('code');
+      addNotionText(code, block.richText);
+      pre.appendChild(code);
+    }
+    container.appendChild(pre);
+    return;
+  }
+  const tags = {
+    heading_1: 'h2', heading_2: 'h2', heading_3: 'h3',
+    paragraph: 'p', quote: 'blockquote', callout: 'aside', to_do: 'p',
+  };
+  const tag = tags[type];
+  if (!tag) return;
+  const el = document.createElement(tag);
+  if (type === 'to_do') {
+    const marker = document.createElement('span');
+    marker.textContent = block.checked ? '☑ ' : '☐ ';
+    el.appendChild(marker);
+  }
+  addNotionText(el, block.richText);
+  container.appendChild(el);
+  for (const child of block.children || []) renderNotionProgrammeBlock(child, el);
+}
+async function loadNotionProgramme() {
+  const status = document.getElementById('programme-notion-status');
+  const content = document.getElementById('programme-notion-content');
+  try {
+    const response = await fetch('/api/research-program', {headers:{Accept:'application/json'}});
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const data = await response.json();
+    if (data.source !== 'notion-research-programme' || !Array.isArray(data.blocks) || !data.blocks.length) {
+      throw new Error('Invalid Notion programme response');
+    }
+    document.getElementById('programme-title').textContent = data.title || '統合研究プログラム';
+    const updated = document.getElementById('programme-updated');
+    const stamp = data.updatedAt ? new Date(data.updatedAt) : null;
+    updated.textContent = stamp && !Number.isNaN(stamp.valueOf())
+      ? '出典：Notion統合研究計画　最終更新：' + stamp.toLocaleDateString('ja-JP', {timeZone:'Asia/Tokyo'})
+      : '出典：Notion統合研究計画';
+    const fragment = document.createDocumentFragment();
+    for (const block of data.blocks) renderNotionProgrammeBlock(block, fragment);
+    content.replaceChildren(fragment);
+    status.hidden = true;
+  } catch (error) {
+    console.warn('Notion programme unavailable:', error);
+    status.textContent = 'Notionの研究計画を取得できません。公開内容は一時的に表示できません。';
+    document.getElementById('programme-updated').textContent = 'Notionとの同期を確認してください。';
+  }
+}
+loadNotionProgramme();
+
 const trigger=document.getElementById('menu-toggle');
 const nav=document.getElementById('site-nav');
 trigger.addEventListener('click',()=>{const opened=nav.classList.toggle('open');trigger.setAttribute('aria-expanded',String(opened));});
