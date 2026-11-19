@@ -364,7 +364,7 @@
       {value: 'Ⅱ AIによる行為帰属と責任', key: 'series-ii', description: 'AI・情報システムが実行する行為の帰属と責任'},
       {value: 'Ⅲ 財産拘束と比較財産法', key: 'series-iii', description: 'ワクフ・登記・信託を横断する財産拘束と処分権限'},
       {value: 'Ⅳ 法的責任と経済的リスク', key: 'series-iv', description: '契約上の責任と実質的な経済リスクの分離'},
-      {value: 'Ⅴ 公的配分と係数統治（育成）', key: 'series-v', description: '公的資金の配分係数と実際の負担帰着を検証する育成系列'}
+      {value: 'Ⅴ 公的配分と係数統治', key: 'series-v', description: '公的資金の配分係数と実際の負担帰着を検証する研究系列'}
     ];
     const UNCLASSIFIED_SERIES = {key: 'series-unclassified', value: '未分類'};
     const PAPER_COLOR_ORDER = RESEARCH_SERIES.map(series => series.key).concat(UNCLASSIFIED_SERIES.key);
