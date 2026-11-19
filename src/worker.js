@@ -125,12 +125,128 @@ async function loadPapers(token) {
   return {works, source: 'notion-paper-repository', updatedAt: new Date().toISOString()};
 }
 
+// Research programme: read one fixed Notion page. The token stays on the Worker;
+// the public endpoint never accepts an arbitrary Notion page identifier.
+const RESEARCH_PROGRAM_PAGE_ID = '41d51522-3974-810b-897c-f2049d1a035d';
+const NOTION_API_VERSION = '2025-09-03';
+
+async function notionProgrammeGet(token, path) {
+  const response = await fetch('https://api.notion.com/v1' + path, {
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Notion-Version': NOTION_API_VERSION,
+      Accept: 'application/json',
+    },
+  });
+  if (!response.ok) {
+    const error = new Error('Notion research programme request failed: ' + response.status);
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
+
+function programmeRichText(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 100).map(part => ({
+    text: String(part.plain_text || part.text?.content || part.equation?.expression || '').slice(0, 12000),
+    href: typeof part.href === 'string' ? part.href : '',
+    bold: part.annotations?.bold === true,
+    italic: part.annotations?.italic === true,
+    code: part.annotations?.code === true,
+    underline: part.annotations?.underline === true,
+    strikethrough: part.annotations?.strikethrough === true,
+  }));
+}
+
+const PROGRAMME_BLOCK_TYPES = new Set([
+  'paragraph', 'heading_1', 'heading_2', 'heading_3',
+  'bulleted_list_item', 'numbered_list_item', 'quote',
+  'table', 'table_row', 'equation', 'code', 'to_do',
+  'divider', 'child_page', 'bookmark', 'callout',
+]);
+
+async function programmeChildren(token, parentId, depth, limits) {
+  if (depth > 4) throw new Error('Research programme nesting limit exceeded');
+  const items = [];
+  let cursor = null;
+  let pageCount = 0;
+  do {
+    if (++limits.requests > 45) throw new Error('Research programme request limit exceeded');
+    const params = new URLSearchParams({page_size: '100'});
+    if (cursor) params.set('start_cursor', cursor);
+    const response = await notionProgrammeGet(token, '/blocks/' + parentId + '/children?' + params);
+    for (const block of response.results || []) {
+      if (block.archived || block.in_trash) continue;
+      if (++limits.blocks > 500) throw new Error('Research programme block limit exceeded');
+      if (!PROGRAMME_BLOCK_TYPES.has(block.type)) continue;
+      const kind = block.type;
+      const data = block[kind] || {};
+      const item = {type: kind};
+      if (Array.isArray(data.rich_text)) item.richText = programmeRichText(data.rich_text);
+      if (kind === 'table') item.hasColumnHeader = data.has_column_header === true;
+      if (kind === 'table_row') item.cells = (data.cells || []).map(programmeRichText);
+      if (kind === 'equation') item.expression = String(data.expression || '');
+      if (kind === 'code') item.language = String(data.language || '');
+      if (kind === 'to_do') item.checked = data.checked === true;
+      if (kind === 'child_page') {
+        item.title = String(data.title || '');
+        item.url = 'https://www.notion.so/' + block.id.replace(/-/g, '');
+      }
+      if (kind === 'bookmark') item.url = String(data.url || '');
+      // A child page has its own publication policy; show only its link, not its contents.
+      if (block.has_children && kind !== 'child_page' && depth < 4) {
+        item.children = await programmeChildren(token, block.id, depth + 1, limits);
+      }
+      items.push(item);
+    }
+    cursor = response.has_more ? response.next_cursor : null;
+    if (response.has_more && !cursor) throw new Error('Research programme cursor missing');
+    if (++pageCount > 10) throw new Error('Research programme pagination limit exceeded');
+  } while (cursor);
+  return items;
+}
+
+async function loadResearchProgramme(token) {
+  const page = await notionProgrammeGet(token, '/pages/' + RESEARCH_PROGRAM_PAGE_ID);
+  if (page.archived || page.in_trash) throw new Error('Research programme is unavailable');
+  const heading = page.properties?.title?.title || [];
+  const title = heading.map(part => part.plain_text || '').join('') ||
+    '法情報学・計算法制度科学 ― 統合研究プログラム';
+  const blocks = await programmeChildren(token, RESEARCH_PROGRAM_PAGE_ID, 0,
+    {requests: 0, blocks: 0});
+  return {
+    title,
+    blocks,
+    updatedAt: page.last_edited_time || '',
+    source: 'notion-research-programme',
+  };
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.pathname !== '/api/cms' && url.pathname !== '/api/papers') return env.ASSETS.fetch(request);
+    if (!['/api/cms', '/api/papers', '/api/research-program'].includes(url.pathname)) return env.ASSETS.fetch(request);
     if (request.method !== 'GET') return new Response('Method not allowed', {status:405, headers:{Allow:'GET'}});
     if (!env.NOTION_TOKEN) return new Response('Notion CMS is not configured', {status:503});
+    if (url.pathname === '/api/research-program') {
+      const cache = caches.default;
+      const cacheKey = new Request(url.origin + '/api/research-program');
+      const cached = await cache.match(cacheKey);
+      if (cached) return cached;
+      try {
+        const response = Response.json(await loadResearchProgramme(env.NOTION_TOKEN), {
+          headers: {'Cache-Control': 'public, max-age=60, s-maxage=180'},
+        });
+        if (ctx?.waitUntil) ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
+      } catch (error) {
+        console.error('Research programme unavailable', error.message);
+        return new Response('Research programme unavailable', {
+          status: 502, headers: {'Cache-Control': 'no-store'},
+        });
+      }
+    }
     if (url.pathname === '/api/papers') {
       try {
         return Response.json(await loadPapers(env.NOTION_TOKEN), {
