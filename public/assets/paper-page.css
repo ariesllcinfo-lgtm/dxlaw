@@ -1,0 +1,25 @@
+/* 論文個別ページ（scripts/build-paper-pages.mjs が生成）用の軽量スタイル。外部CDN・Webフォント不使用。 */
+:root { --navy:#14213d; --gold:#9a7b3e; --paper:#fbf9f5; --line:#e2ddd5; --ink:#292524; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--paper); color:var(--ink); line-height:1.9;
+  font-family:"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif; }
+a { color:var(--navy); }
+.site-header { display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; align-items:baseline; justify-content:space-between;
+  padding:1rem clamp(1rem,4vw,2rem); border-bottom:1px solid var(--line); }
+.brand { font-weight:700; letter-spacing:.15em; text-decoration:none; font-size:1.2rem; }
+.site-header nav { display:flex; flex-wrap:wrap; gap:.25rem 1.25rem; font-size:.9rem; }
+main { max-width:46rem; margin:0 auto; padding:2rem clamp(1rem,4vw,2rem) 4rem; }
+.crumbs { font-size:.8rem; color:#78716c; }
+h1 { font-size:clamp(1.4rem,4.5vw,2rem); line-height:1.5; color:var(--navy); margin:.5rem 0; }
+.subtitle { margin:0 0 1.5rem; color:#57534e; font-size:1.05rem; }
+.meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(10rem,1fr)); gap:.75rem 1.5rem;
+  margin:1.5rem 0; padding:1rem 0; border-block:1px solid var(--line); }
+.meta dt { font-size:.72rem; letter-spacing:.1em; color:var(--gold); }
+.meta dd { margin:0; font-size:.95rem; overflow-wrap:anywhere; }
+h2 { font-size:1.1rem; color:var(--navy); border-left:3px solid var(--gold); padding-left:.6rem; }
+.tags { display:flex; flex-wrap:wrap; gap:.4rem; list-style:none; padding:0; margin:1.5rem 0; }
+.tags li { font-size:.78rem; padding:.1rem .6rem; border:1px solid var(--line); background:#fff; }
+.note { font-size:.82rem; color:#57534e; border:1px solid var(--line); background:#fff; padding:.75rem 1rem; }
+.button { display:inline-block; padding:.6rem 1.4rem; background:var(--navy); color:#fff; text-decoration:none; }
+.button:hover { background:#0b1323; }
+footer { text-align:center; font-size:.75rem; color:#78716c; padding:2rem 1rem; border-top:1px solid var(--line); }

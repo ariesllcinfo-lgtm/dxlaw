@@ -56,3 +56,23 @@ GitHubの `.github/workflows/verify-paper-shelf.yml` はページ分離・JS構�
 両者は一体として扱います。公開コンテンツの正本は[Notionの統合研究計画](https://app.notion.com/p/41d515223974810b897cf2049d1a035d)です。/research-program/はWorkerの/api/research-programを通じてNotionブロックを描画し、サイト側に研究本文・詳細な日程表をハードコードしません。更新反映にはエッジキャッシュ分の遅延があり得ます。
 
 数理仕様はNotion「数理モデル v0.1」、実装・実証の研究質問や作業項目はノートで管理します。実装には固定的な月次・年次スケジュールを設定しません。取得エラー時は古い研究内容を偽って表示せず、同期エラーを明示します。
+
+## 論文の個別ページ（検索・OGP向けの静的HTML）
+
+`scripts/build-paper-pages.mjs` が、Notion論文リポジトリから `/repository/<論文ID>/` を生成します。出力するのは書誌情報（題名・著者・日付・要旨・分類）だけで、本文は含みません。`citation_*` メタタグ、JSON-LD（ScholarlyArticle）、OGP、`sitemap.xml`、`robots.txt` を出します。外部CDNは使いません。
+
+```
+NOTION_TOKEN=... SITE_ORIGIN=https://公開ドメイン node scripts/build-paper-pages.mjs
+node scripts/test-paper-pages.mjs   # ネットワーク不要の検証
+```
+
+公開の条件（fail closed）：「書籍種別＝論文」かつ Notion の **「公開可」チェックボックスがON** の行だけを出力します。「公開可」列がなければNotionが400を返し、何も書かずに失敗します。「公開可」を外すと、次回ビルドで生成済みページが削除されます（生成物の目印がないページは削除しません）。
+
+Notionに追加する列（任意の列は未設定でも動きます）：
+
+- `公開可`（チェックボックス・必須）
+- `公開要旨`（テキスト・任意。公開用に書いた要旨だけを入れる。内部メモ用の「理論的貢献」は使いません）
+- `公開日`（日付・任意。なければ「最終更新日」を使用）
+- `著者`（テキスト・任意。なければ「安藤 和樹」）
+
+`SITE_ORIGIN` を指定しない場合、canonical・sitemap・robots は出力しません。`NOTION_TOKEN` は読み取り専用の連携に限り、GitHub Actions の Secrets などに置いてください。

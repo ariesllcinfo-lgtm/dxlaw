@@ -4,6 +4,7 @@ on:
     paths:
       - public/**
       - src/worker.js
+      - scripts/**
       - .github/workflows/verify-paper-shelf.yml
   workflow_dispatch:
 jobs:
@@ -49,3 +50,5 @@ jobs:
           new Function(js);
           console.log('PASS: homepage, repository, researcher profile, six-book mobile shelf, and valid JavaScript.');
           NODE
+      - name: Verify static paper pages (publish gate, escaping, stale removal)
+        run: node scripts/test-paper-pages.mjs

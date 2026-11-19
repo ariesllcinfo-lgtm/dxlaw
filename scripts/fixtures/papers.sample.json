@@ -1,0 +1,49 @@
+{
+  "results": [
+    {
+      "url": "https://www.notion.so/sample-pap-0001",
+      "last_edited_time": "2026-11-18T10:00:00.000Z",
+      "properties": {
+        "書籍種別": {"type": "select", "select": {"name": "論文"}},
+        "公開可": {"type": "checkbox", "checkbox": true},
+        "論文ID": {"type": "rich_text", "rich_text": [{"plain_text": "PAP-0001"}]},
+        "論文タイトル": {"type": "title", "title": [{"plain_text": "サンプル論文 </script><b>x</b> & \"引用\""}]},
+        "サブタイトル": {"type": "rich_text", "rich_text": [{"plain_text": "テスト用サブタイトル"}]},
+        "公開要旨": {"type": "rich_text", "rich_text": [{"plain_text": "第一段落 <img src=x onerror=alert(1)>\n\n第二段落"}]},
+        "研究系列": {"type": "select", "select": {"name": "Ⅰ 制度的確定と損失帰属"}},
+        "研究成熟度": {"type": "select", "select": {"name": "論証"}},
+        "専門領域": {"type": "multi_select", "multi_select": [{"name": "法情報学"}, {"name": "有価証券法"}]},
+        "現在版": {"type": "number", "number": 3},
+        "公開日": {"type": "date", "date": {"start": "2026-11-01"}},
+        "最終更新日": {"type": "date", "date": {"start": "2026-11-18"}}
+      }
+    },
+    {
+      "url": "https://www.notion.so/sample-pap-0002",
+      "properties": {
+        "書籍種別": {"type": "select", "select": {"name": "論文"}},
+        "公開可": {"type": "checkbox", "checkbox": false},
+        "論文ID": {"type": "rich_text", "rich_text": [{"plain_text": "PAP-0002"}]},
+        "論文タイトル": {"type": "title", "title": [{"plain_text": "非公開の草稿"}]}
+      }
+    },
+    {
+      "url": "https://www.notion.so/sample-bad-id",
+      "properties": {
+        "書籍種別": {"type": "select", "select": {"name": "論文"}},
+        "公開可": {"type": "checkbox", "checkbox": true},
+        "論文ID": {"type": "rich_text", "rich_text": [{"plain_text": "../../assets"}]},
+        "論文タイトル": {"type": "title", "title": [{"plain_text": "パストラバーサルID"}]}
+      }
+    },
+    {
+      "url": "https://www.notion.so/sample-note",
+      "properties": {
+        "書籍種別": {"type": "select", "select": {"name": "ノート"}},
+        "公開可": {"type": "checkbox", "checkbox": true},
+        "論文ID": {"type": "rich_text", "rich_text": [{"plain_text": "NOTE-0001"}]},
+        "論文タイトル": {"type": "title", "title": [{"plain_text": "論文ではないノート"}]}
+      }
+    }
+  ]
+}
