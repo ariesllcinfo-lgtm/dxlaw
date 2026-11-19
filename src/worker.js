@@ -78,6 +78,8 @@ async function loadPapers(token) {
       if (!title) continue;
       const notionId = value(props['論文ID']).trim();
       const maturity = value(props['研究成熟度']).trim();
+      const researchSeries = value(props['研究系列']).trim();
+      const seriesRole = value(props['系列内位置']).trim();
       const status = value(props['状態']).trim();
       const field = value(props['主学問分野']).trim();
       const subfield = value(props['分野']).trim();
@@ -92,6 +94,8 @@ async function loadPapers(token) {
         title,
         subtitle: value(props['サブタイトル']).trim(),
         maturity,
+        researchSeries,
+        seriesRole,
         status,
         field,
         subfield,
