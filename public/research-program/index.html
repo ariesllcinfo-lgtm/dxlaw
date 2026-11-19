@@ -26,6 +26,7 @@
   p{margin:0 0 18px}.muted{color:#637081}.wide{max-width:900px}.quote{border-left:3px solid var(--gold);padding:14px 0 14px 25px;margin:26px 0;background:linear-gradient(90deg,#f2efe9,transparent);font-size:20px;line-height:1.85;color:var(--navy)}
   .layers{display:grid;gap:9px;max-width:900px}.layer{display:grid;grid-template-columns:60px 190px 1fr;gap:18px;align-items:center;padding:17px 22px;border:1px solid var(--line);background:white}.layer .number{font-family:Georgia,serif;font-size:27px;color:var(--gold)}.layer strong{color:var(--navy);font-size:16px}.layer span:last-child{font-size:14px;color:#556070}
   .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.card{background:#fff;border:1px solid var(--line);padding:25px}.card .micro{font-family:Georgia,serif;letter-spacing:.1em;color:var(--gold);font-size:13px}.card p{font-size:14px;color:#566071;margin-bottom:0}.card ul{padding-left:20px;font-size:14px;color:#566071}
+  .objective-definition{background:#fff;border:1px solid var(--line);border-top:3px solid var(--gold);padding:27px 30px;margin:0 0 25px}.objective-label{font:700 12px Georgia,serif;color:var(--gold);letter-spacing:.14em;display:block;margin-bottom:15px}.objective-text{font-size:clamp(18px,2.6vw,24px);font-weight:600;color:var(--navy);line-height:1.9;margin-bottom:12px}.objective-en{font-size:13px;color:#718093;margin-bottom:0}.objective-explain{font-size:15px;color:#475569;line-height:2.05}.objective-explain strong{color:var(--navy)}
   .math{background:var(--deep);color:#e3e6e8;padding:21px 26px;border-left:3px solid #c5a880;overflow-wrap:anywhere;font-size:16px;letter-spacing:.02em;font-family:Georgia,"Noto Serif JP",serif;margin:22px 0}.math small{font-size:12px;color:#b6c0cc;display:block;margin-top:9px;font-family:sans-serif}
   .time-table{border-collapse:collapse;width:100%;background:white;font-size:14px}.time-table th,.time-table td{padding:16px 19px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.time-table th{background:var(--navy);color:white;font-weight:500}.time-table td:first-child{white-space:nowrap;color:var(--navy);font-weight:600}.time-table tr:last-child td{border-bottom:0}.table-scroll{overflow-x:auto;border:1px solid var(--line)}
   .smallprint{font-size:13px;color:#6c7580}.source-links{padding-left:22px}.source-links li{margin-bottom:12px}.source-links a{color:#1f4670;text-underline-offset:3px}
@@ -50,10 +51,20 @@
   <p class="sub">Computational Science of Legal Institutions</p>
   <p class="lead">法律を情報・権限・決定・訂正・損失負担のシステムとして捉え、その違いが企業や行政の行動、投資、雇用、競争、社会的厚生にどう作用するかを説明・予測・検証する。法学と経済分析を、検証可能な共通モデルで結ぶ研究構想です。</p>
   <div class="status">研究計画 v1.0（2026年11月19日）／仮説段階・実証前</div>
-  <div class="actions"><a class="button" href="https://app.notion.com/p/41d515223974810b897cf2049d1a035d" target="_blank" rel="noopener noreferrer">Notionで研究計画の全文を読む ↗</a><a class="button secondary" href="/repository/">関連研究を見る</a></div>
+  <div class="actions"><a class="button" href="https://app.notion.com/p/41d515223974810b897cf2049d1a035d" target="_blank" rel="noopener noreferrer">Notionで研究計画の全文を読む ↗</a><a class="button secondary" href="https://app.notion.com/p/41d515223974818f97bbf22d5dc40a10" target="_blank" rel="noopener noreferrer">数理モデル v0.1 ↗</a><a class="button secondary" href="/repository/">関連研究を見る</a></div>
  </div></div>
  <section class="content-section" id="mission"><div class="wrap wide">
-  <div class="section-head"><span class="section-num">01 / Mission</span><h2 class="serif">中心となる研究課題</h2></div>
+  <div class="section-head"><span class="section-num">01 / Mission</span><h2 class="serif">研究目的と中心課題</h2></div>
+  <div class="objective-definition">
+   <span class="objective-label">Research Objective / 研究目的</span>
+   <p class="objective-text serif">法制度の構造と作動を形式化し、制度変更による権利・責任・企業行動・経済活動の変化を、説明・予測・検証する。</p>
+   <p class="objective-en en">Computational Science of Legal Institutions</p>
+  </div>
+  <div class="objective-explain">
+   <p>「<strong>構造</strong>」とは、誰がどの法的根拠で権利・義務を決定し、いつ確定させ、誤りをどう訂正できるかというルールの配置です。「<strong>作動</strong>」とは、申請・審査・決定・記録・支払・取消しなど、制度が実際に動く過程を指します。</p>
+   <p>この二つを数理モデルで表現し、制度が変わったときの<strong>権利・責任の分配</strong>を特定します。さらに、企業や行政の投資・資金調達・組織運営などの<strong>行動変化</strong>を通じ、雇用・競争・人材供給・社会的費用など<strong>経済活動への影響</strong>を検証します。</p>
+   <p>「<strong>説明</strong>」は結果が生まれた仕組みを明らかにすること、「<strong>予測</strong>」は制度変更後の結果を事前に推定すること、「<strong>検証</strong>」はデータ・反例・既存モデルとの比較によって推定の妥当性を評価することです。</p>
+  </div>
   <p class="quote serif">誰が何を根拠に権利・負担を確定し、誤りをどう訂正し、その制度設計が経営と経済に何をもたらすのか。</p>
   <p>権限配分・確定時点・訂正可能性・損失帰属を形式化し、制度改正が生み出す経営上・経済上の効果を比較します。単なる制度の紹介や抽象的な規範論ではなく、法律上の状態変化から実際の行動変化へ至るメカニズムを検証します。</p>
   <p class="smallprint">「計算法制度科学」は本研究プログラムの仮称です。新しい独立学問の成立や成果の独自性が実証されたことを意味しません。既存の法情報学・法と経済学・制度分析の成果との比較を前提にします。</p>
@@ -104,6 +115,7 @@
   <div class="section-head"><span class="section-num">07 / Research Documents</span><h2 class="serif">関連資料・研究計画</h2></div>
   <ul class="source-links">
    <li><a href="https://app.notion.com/p/41d515223974810b897cf2049d1a035d" target="_blank" rel="noopener noreferrer">研究計画全文：計算法制度科学（Notion）</a></li>
+   <li><a href="https://app.notion.com/p/41d515223974818f97bbf22d5dc40a10" target="_blank" rel="noopener noreferrer">数理モデル v0.1：法的状態遷移・訂正可能性・経営経済効果（Notion）</a></li>
    <li><a href="https://app.notion.com/p/41d515223974816fbea9f961a13a9a21" target="_blank" rel="noopener noreferrer">研究体系ガイド：中核4系列・育成1系列（Notion）</a></li>
    <li><a href="https://app.notion.com/p/3fc51522397480af8e60f58f493eeb4a" target="_blank" rel="noopener noreferrer">確定権限の配置と決定の自己準拠（研究ノート）</a></li>
    <li><a href="https://app.notion.com/p/3ff51522397480c48d5af4309b5f759b" target="_blank" rel="noopener noreferrer">制度的判断の確定と訂正可能性（研究ノート）</a></li>
