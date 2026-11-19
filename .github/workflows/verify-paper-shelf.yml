@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - public/**
+      - src/worker.js
       - .github/workflows/verify-paper-shelf.yml
   workflow_dispatch:
 jobs:
@@ -20,6 +21,7 @@ jobs:
           const profile = load('public/kazuki-ando/index.html');
           const css = load('public/assets/site.css');
           const js = load('public/assets/site.js');
+          const worker = load('src/worker.js');
           for (const [name, page] of [['home', home], ['repository', repo], ['profile', profile]]) {
             if (!page.includes('href="/assets/site.css"') || !page.includes('src="/assets/site.js"')) throw Error(name + ': missing shared assets');
             if (!page.includes('href="/repository/#works"') || !page.includes('href="/kazuki-ando/#profile"')) throw Error(name + ': missing cross-page navigation');
@@ -28,6 +30,8 @@ jobs:
           if (home.includes('id="works-grid"') || home.includes('id="profile-name"')) throw Error('Home still contains the dedicated sections');
           if (!home.includes('id="news-list"') || !home.includes('id="framework"')) throw Error('Home content missing');
           if (!repo.includes('id="works-grid"') || !repo.includes('id="paper-sort"')) throw Error('Repository shelf or sorting missing');
+          if (!repo.includes('id="legal-informatics-list"') || !repo.includes('id="legal-informatics-count"')) throw Error('Legal-informatics standalone gallery missing');
+          if (!home.includes('href="/repository/#legal-informatics"')) throw Error('Homepage legal-informatics link missing');
           if (repo.includes('id="profile-name"')) throw Error('Repository contains the profile section');
           if (!profile.includes('id="profile-name"') || !profile.includes('id="profile-themes"')) throw Error('Researcher profile missing');
           if (profile.includes('id="works-grid"')) throw Error('Profile contains the repository shelf');
@@ -40,6 +44,8 @@ jobs:
             const spine = usable / 6;
             if (spine <= 0 || Math.abs(spine * 6 - usable) > 1e-8) throw Error('Six slots do not fit ' + viewport);
           }
+          if (!worker.includes("props['法情報学研究']") || !worker.includes('legalInformaticsCategory')) throw Error('Notion legal-informatics API fields missing');
+          if (!js.includes('function ordinaryPapers()') || !js.includes('renderLegalInformatics()')) throw Error('Separate legal-informatics UI missing');
           new Function(js);
           console.log('PASS: homepage, repository, researcher profile, six-book mobile shelf, and valid JavaScript.');
           NODE
