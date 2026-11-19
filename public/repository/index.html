@@ -209,7 +209,7 @@
             <label for="paper-sort" class="font-serif text-xs text-stone-600">並び順</label>
             <select id="paper-sort" class="paper-sort-select" onchange="setPaperSort(this.value)" aria-label="論文の並び順">
               <option value="series" selected>研究系列別（中核を先に）</option>
-              <option value="color">分野別（同じ色をまとめる）</option>
+              <option value="color">研究体系の色順</option>
               <option value="id">論文ID順</option>
               <option value="title">タイトル順</option>
               <option value="updated">更新日順（新しい順）</option>
@@ -218,7 +218,9 @@
           </div>
         </div>
 
-        <div id="works-grid" class="bookshelf" aria-label="論文の本棚" aria-live="polite">
+        <p class="text-xs font-serif text-stone-600 mb-2">背表紙の色はNotionの研究系列Ⅰ〜Ⅴに対応します。法情報学研究は独立書架で区別します。</p>
+        <div id="paper-color-legend" class="paper-color-legend" aria-label="研究体系ごとの背表紙色の凡例"></div>
+        <div id="works-grid" class="bookshelf" aria-label="研究系列別に色分けされた論文の本棚" aria-live="polite">
           <p class="shelf-empty">Notionの論文リポジトリを読み込んでいます...</p>
         </div>
 
@@ -241,7 +243,7 @@
         </div>
       </section>
 
-      <!-- Research programs are conceptual clusters, distinct from the subject-area colors. -->
+      <!-- Research-series cards share the color palette used by the book spines. -->
       <section id="research-series" class="mb-16 scroll-mt-28" aria-labelledby="research-series-title">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-b-2 border-academic-navy pb-4 mb-6">
           <div>
