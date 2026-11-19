@@ -195,6 +195,35 @@
         <p class="font-serif text-sm text-stone-600 mt-5 leading-loose">研究成果は、形式検証・アルゴリズム評価を扱う「法情報学専用書架」と、権利・制度の法理を扱う「通常研究系列」に分けて探せます。掲載対象は「書籍種別：論文」の資料です。</p>
       </div>
 
+      <!-- Public Notion paper shelf at the top for discoverability -->
+      <section id="works" class="mb-24 scroll-mt-28">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3.5 mb-8 gap-4">
+          <div>
+            <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Academic Papers / Notion</span>
+            <div class="flex flex-wrap items-baseline gap-3 mt-0.5">
+              <h2 class="font-serif text-2xl font-bold text-academic-navy">論文リポジトリ</h2>
+              <span class="text-xs text-stone-500 font-serif">Notionで「論文」かつ「公開可：ON」の研究を表示。クリックすると原文を開きます。</span>
+            </div>
+          </div>
+          <div class="paper-shelf-controls">
+            <label for="paper-sort" class="font-serif text-xs text-stone-600">並び順</label>
+            <select id="paper-sort" class="paper-sort-select" onchange="setPaperSort(this.value)" aria-label="論文の並び順">
+              <option value="series" selected>研究系列別（中核を先に）</option>
+              <option value="color">分野別（同じ色をまとめる）</option>
+              <option value="id">論文ID順</option>
+              <option value="title">タイトル順</option>
+              <option value="updated">更新日順（新しい順）</option>
+            </select>
+            <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
+          </div>
+        </div>
+
+        <div id="works-grid" class="bookshelf" aria-label="論文の本棚" aria-live="polite">
+          <p class="shelf-empty">Notionの論文リポジトリを読み込んでいます...</p>
+        </div>
+
+      </section>
+
       <!-- Independently flagged legal-informatics studies use a distinct card layout. -->
       <section id="legal-informatics" class="mb-20 scroll-mt-28" aria-labelledby="legal-informatics-title">
         <div class="border-b-2 border-academic-navy pb-4 mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
@@ -226,33 +255,7 @@
           <p class="font-serif text-sm text-stone-500">Notionから研究系列を読み込み中…</p>
         </div>
       </section>
-      <section id="works" class="mb-24 scroll-mt-28">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3.5 mb-8 gap-4">
-          <div>
-            <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Academic Papers / Notion</span>
-            <div class="flex flex-wrap items-baseline gap-3 mt-0.5">
-              <h2 class="font-serif text-2xl font-bold text-academic-navy">論文リポジトリ</h2>
-              <span class="text-xs text-stone-500 font-serif">書籍種別が「論文」の研究のみ表示。クリックするとNotionの該当ページを開きます。</span>
-            </div>
-          </div>
-          <div class="paper-shelf-controls">
-            <label for="paper-sort" class="font-serif text-xs text-stone-600">並び順</label>
-            <select id="paper-sort" class="paper-sort-select" onchange="setPaperSort(this.value)" aria-label="論文の並び順">
-              <option value="series" selected>研究系列別（中核を先に）</option>
-              <option value="color">分野別（同じ色をまとめる）</option>
-              <option value="id">論文ID順</option>
-              <option value="title">タイトル順</option>
-              <option value="updated">更新日順（新しい順）</option>
-            </select>
-            <span id="paper-sync-status" class="text-xs font-serif text-stone-500" role="status" aria-live="polite">Notionと同期中…</span>
-          </div>
-        </div>
 
-        <div id="works-grid" class="bookshelf" aria-label="論文の本棚" aria-live="polite">
-          <p class="shelf-empty">Notionの論文リポジトリを読み込んでいます...</p>
-        </div>
-
-      </section>
       <p class="font-serif text-sm text-stone-600"><a class="text-academic-gold hover:underline" href="/kazuki-ando/">研究者・安藤和樹について →</a></p>
     </main>
 
