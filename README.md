@@ -5,7 +5,7 @@ Cloudflare Workers Static Assets + Notion APIによる研究会ウェブサイ�
 ## ページ構成
 
 - `/` — トップページ：研究理念、新着情報、各ページへの案内
-- `/research-program/` — 計算法制度科学：制度分析から経営・経済予測までを結ぶ研究プログラムの公開ページ（Notionの詳細計画にリンク）
+- `/research-program/` — 法情報学・計算法制度科学の統合研究プログラム。Notion研究計画の本文をAPI経由で表示（固定HTMLの二重管理はしない）
 - `/repository/` — 論文リポジトリ：Notionの「書籍種別：論文」だけを一覧表示し、背表紙からNotion原文を開く
 - `/kazuki-ando/` — 安藤和樹：研究者プロフィール、研究関心、研究テーマ
 
@@ -16,6 +16,7 @@ Cloudflare Workers Static Assets + Notion APIによる研究会ウェブサイ�
 
 - `/api/cms` — ニュース、スライド、プロフィール
 - `/api/papers` — 論文リポジトリ（分類が「論文」のレコードに限定）
+- `/api/research-program` — 固定したNotion統合研究計画ページの本文ブロックを読み取り専用で取得。NOTION_TOKENはWorkerのシークレットに保持し、サイト画面は取得内容を安全にDOM表示。5分以内程度のキャッシュで更新反映
 
 API実装は `src/worker.js`。機密情報 `NOTION_TOKEN` はCloudflare Workerのシークレットで管理し、リポジトリには置かない。
 
@@ -50,6 +51,8 @@ Notion データソースに専用ギャラリービュー「法情報学｜専�
 
 GitHubの `.github/workflows/verify-paper-shelf.yml` はページ分離・JS構文・6冊/行のモバイル本棚を検証します。GitHubへのpushだけでは公開されない場合があるため、Cloudflareのデプロイ履歴を確認してください。
 
-## 計算法制度科学の研究計画
+## 法情報学・計算法制度科学の統合研究プログラム
 
-「計算法制度科学」は研究プログラムの仮称であり、新学問としての成立や予測精度は未検証です。詳細は[Notionの研究計画](https://app.notion.com/p/41d515223974810b897cf2049d1a035d)を参照してください。論文リポジトリの「書籍種別＝論文」の表示条件は変更しません。
+両者は一体として扱います。公開コンテンツの正本は[Notionの統合研究計画](https://app.notion.com/p/41d515223974810b897cf2049d1a035d)です。/research-program/はWorkerの/api/research-programを通じてNotionブロックを描画し、サイト側に研究本文・詳細な日程表をハードコードしません。更新反映にはエッジキャッシュ分の遅延があり得ます。
+
+数理仕様はNotion「数理モデル v0.1」、実装・実証の研究質問や作業項目はノートで管理します。実装には固定的な月次・年次スケジュールを設定しません。取得エラー時は古い研究内容を偽って表示せず、同期エラーを明示します。
