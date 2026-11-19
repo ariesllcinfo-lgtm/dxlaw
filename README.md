@@ -5,6 +5,7 @@ Cloudflare Workers Static Assets + Notion APIによる研究会ウェブサイ�
 ## ページ構成
 
 - `/` — トップページ：研究理念、新着情報、各ページへの案内
+- `/research-program/` — 計算法制度科学：制度分析から経営・経済予測までを結ぶ研究プログラムの公開ページ（Notionの詳細計画にリンク）
 - `/repository/` — 論文リポジトリ：Notionの「書籍種別：論文」だけを一覧表示し、背表紙からNotion原文を開く
 - `/kazuki-ando/` — 安藤和樹：研究者プロフィール、研究関心、研究テーマ
 
@@ -37,3 +38,7 @@ API実装は `src/worker.js`。機密情報 `NOTION_TOKEN` はCloudflare Worker�
 このプロジェクトは `wrangler.jsonc` を使用するCloudflare Workerです。認証済みの開発環境からリポジトリ直下で `npx wrangler deploy` を実行します。
 
 GitHubの `.github/workflows/verify-paper-shelf.yml` はページ分離・JS構文・6冊/行のモバイル本棚を検証します。GitHubへのpushだけでは公開されない場合があるため、Cloudflareのデプロイ履歴を確認してください。
+
+## 計算法制度科学の研究計画
+
+「計算法制度科学」は研究プログラムの仮称であり、新学問としての成立や予測精度は未検証です。詳細は[Notionの研究計画](https://app.notion.com/p/41d515223974810b897cf2049d1a035d)を参照してください。論文リポジトリの「書籍種別＝論文」の表示条件は変更しません。
