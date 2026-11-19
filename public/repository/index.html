@@ -185,7 +185,22 @@
         <h1 class="font-serif text-3xl sm:text-4xl text-academic-navy font-bold mt-2">論文リポジトリ</h1>
         <p class="font-serif text-sm text-stone-600 mt-5 leading-loose">研究成果を専門領域別の本棚から探せます。背表紙を選択するとNotionで論文を開きます。掲載対象は「書籍種別：論文」の資料です。</p>
       </div>
-      <section id="works" class="mb-24">
+
+      <!-- Research programs are conceptual clusters, distinct from the subject-area colors. -->
+      <section id="research-series" class="mb-16 scroll-mt-28" aria-labelledby="research-series-title">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-b-2 border-academic-navy pb-4 mb-6">
+          <div>
+            <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold">Research Programs</span>
+            <h2 id="research-series-title" class="font-serif text-xl sm:text-2xl font-bold text-academic-navy mt-1">研究体系｜中核4系列・育成1系列</h2>
+          </div>
+          <a class="font-serif text-xs text-academic-gold hover:underline" target="_blank" rel="noopener noreferrer" href="https://app.notion.com/41d515223974816fbea9f961a13a9a21">研究体系ガイド（Notion） ↗</a>
+        </div>
+        <p class="font-serif text-sm text-stone-600 leading-loose mb-6">共通の法的問いを軸に、論文を5つの研究系列へ整理しています。カードを選ぶと、その系列の論文だけを本棚に表示します。分野別の背表紙の色や研究成熟度とは独立した分類です。</p>
+        <div id="research-series-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" aria-label="研究系列別の論文絞り込み">
+          <p class="font-serif text-sm text-stone-500">Notionから研究系列を読み込み中…</p>
+        </div>
+      </section>
+      <section id="works" class="mb-24 scroll-mt-28">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-academic-navy pb-3.5 mb-8 gap-4">
           <div>
             <span class="font-en text-xs uppercase tracking-[0.2em] text-academic-gold font-semibold block">Academic Papers / Notion</span>
@@ -197,7 +212,8 @@
           <div class="paper-shelf-controls">
             <label for="paper-sort" class="font-serif text-xs text-stone-600">並び順</label>
             <select id="paper-sort" class="paper-sort-select" onchange="setPaperSort(this.value)" aria-label="論文の並び順">
-              <option value="color" selected>分野別（同じ色をまとめる）</option>
+              <option value="series" selected>研究系列別（中核を先に）</option>
+              <option value="color">分野別（同じ色をまとめる）</option>
               <option value="id">論文ID順</option>
               <option value="title">タイトル順</option>
               <option value="updated">更新日順（新しい順）</option>
