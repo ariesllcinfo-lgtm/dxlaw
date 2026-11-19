@@ -393,8 +393,62 @@
       'admin', 'finance', 'medical', 'info', 'civil', 'economy',
       'literature', 'maritime', 'labor', 'history', 'other'
     ];
-    const PAPER_SORT_MODES = ['color', 'id', 'title', 'updated'];
-    let paperSortMode = 'color';
+    // Research series are Notion-managed, orthogonal to discipline-based cover colors.
+    const RESEARCH_SERIES = [
+      {value: 'Ⅰ 制度的確定と損失帰属', description: '権利・給付の確定、誤記録、訂正、最終的な損失負担'},
+      {value: 'Ⅱ AIによる行為帰属と責任', description: 'AI・情報システムが実行する行為の帰属と責任'},
+      {value: 'Ⅲ 財産拘束と比較財産法', description: 'ワクフ・登記・信託を横断する財産拘束と処分権限'},
+      {value: 'Ⅳ 法的責任と経済的リスク', description: '契約上の責任と実質的な経済リスクの分離'},
+      {value: 'Ⅴ 公的配分と係数統治（育成）', description: '公的資金の配分係数と実際の負担帰着を検証する育成系列'}
+    ];
+    const PAPER_SORT_MODES = ['series', 'color', 'id', 'title', 'updated'];
+    let paperSortMode = 'series';
+    let paperSeriesFilter = 'all';
+
+    function setPaperSeriesFilter(value) {
+      if (value !== 'all' && value !== 'unclassified' && !RESEARCH_SERIES.some(s => s.value === value)) return;
+      paperSeriesFilter = value;
+      renderWorks();
+    }
+
+    function renderResearchSeries() {
+      const container = document.getElementById('research-series-list');
+      if (!container) return;
+      container.replaceChildren();
+      const selections = [
+        {value: 'all', label: 'すべての論文', description: '登録済み論文をすべて表示'},
+        ...RESEARCH_SERIES.map(s => ({value: s.value, label: s.value, description: s.description})),
+        {value: 'unclassified', label: 'その他・未分類', description: '現時点で独立系列に割り当てていない論文'}
+      ];
+      for (const entry of selections) {
+        const count = entry.value === 'all' ? worksData.length
+          : worksData.filter(w => entry.value === 'unclassified'
+            ? !w.researchSeries : w.researchSeries === entry.value).length;
+        const selected = paperSeriesFilter === entry.value;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'text-left bg-white border p-4 sm:p-5 transition hover:border-academic-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-academic-gold ' +
+          (selected ? 'border-academic-navy shadow-md ring-1 ring-academic-navy' : 'border-academic-line');
+        button.setAttribute('aria-pressed', String(selected));
+        button.setAttribute('aria-label', entry.label + 'の論文を表示');
+        const heading = document.createElement('span');
+        heading.className = 'block font-serif font-bold text-sm text-academic-navy leading-relaxed';
+        heading.textContent = entry.label;
+        const desc = document.createElement('span');
+        desc.className = 'block text-xs text-stone-600 font-serif leading-relaxed mt-2';
+        desc.textContent = entry.description;
+        const amount = document.createElement('span');
+        amount.className = 'block mt-3 text-xs font-mono text-academic-gold';
+        amount.textContent = paperSyncError ? '同期未完了' : count + '件';
+        button.append(heading, desc, amount);
+        button.addEventListener('click', () => {
+          setPaperSeriesFilter(entry.value);
+          const shelf = document.getElementById('works');
+          if (shelf) shelf.scrollIntoView({behavior: 'smooth', block: 'start'});
+        });
+        container.append(button);
+      }
+    }
 
     function comparePaperIds(a, b) {
       const left = String(a.paperId || '').trim();
@@ -405,8 +459,16 @@
     }
 
     function sortedPapers() {
-      const sorted = worksData.slice();
+      const sorted = worksData.filter(w => paperSeriesFilter === 'all'
+        || (paperSeriesFilter === 'unclassified' ? !w.researchSeries : w.researchSeries === paperSeriesFilter));
       sorted.sort((a, b) => {
+        if (paperSortMode === 'series') {
+          const aRank = RESEARCH_SERIES.findIndex(s => s.value === a.researchSeries);
+          const bRank = RESEARCH_SERIES.findIndex(s => s.value === b.researchSeries);
+          if (aRank !== bRank) return (aRank < 0 ? 999 : aRank) - (bRank < 0 ? 999 : bRank);
+          const roleRank = role => role === '中核' || role === '育成中' ? 0 : 1;
+          return roleRank(a.seriesRole) - roleRank(b.seriesRole) || comparePaperIds(a, b);
+        }
         if (paperSortMode === 'color') {
           const aRank = PAPER_GROUP_ORDER.indexOf(paperColorFamily(a).key);
           const bRank = PAPER_GROUP_ORDER.indexOf(paperColorFamily(b).key);
@@ -432,6 +494,7 @@
     function renderWorks() {
       const shelf = document.getElementById('works-grid');
       if (!shelf) return;
+      renderResearchSeries();
       shelf.replaceChildren();
       if (!worksData.length) {
         const message = document.createElement('p');
@@ -443,13 +506,22 @@
         return;
       }
 
+      const visiblePapers = sortedPapers();
+      if (!visiblePapers.length) {
+        const message = document.createElement('p');
+        message.className = 'shelf-empty';
+        message.textContent = 'この研究系列に登録された論文はありません。';
+        shelf.append(message);
+        return;
+      }
+
       const textEl = (tag, cls, value) => {
         const el = document.createElement(tag);
         el.className = cls;
         el.textContent = value || '';
         return el;
       };
-      for (const work of sortedPapers()) {
+      for (const work of visiblePapers) {
         const family = paperColorFamily(work);
         const slot = document.createElement('div');
         slot.className = 'shelf-slot';
@@ -457,7 +529,8 @@
         const card = document.createElement('a');
         card.className = 'shelf-book cover-' + family.key;
         card.setAttribute('data-discipline', family.label);
-        card.title = family.label + '｜' + work.title;
+        card.title = (work.researchSeries ? work.researchSeries + '｜' : '') +
+          family.label + '｜' + work.title;
         card.href = work.url;
         card.target = '_blank';
         card.rel = 'noopener noreferrer';
