@@ -18,6 +18,20 @@ Cloudflare Workers Static Assets + Notion APIによる研究会ウェブサイ�
 
 API実装は `src/worker.js`。機密情報 `NOTION_TOKEN` はCloudflare Workerのシークレットで管理し、リポジトリには置かない。
 
+## 研究系列の表示
+
+論文リポジトリのNotionデータソースには「研究系列」と「系列内位置」を追加しています。既存の「理論領域」や「専門領域」「書籍種別」は変更せず、別軸で運用します。
+
+- Ⅰ 制度的確定と損失帰属（中核研究）
+- Ⅱ AIによる行為帰属と責任（中核研究）
+- Ⅲ 財産拘束と比較財産法（中核研究）
+- Ⅳ 法的責任と経済的リスク（中核研究）
+- Ⅴ 公的配分と係数統治（育成）
+
+`/api/papers` は上記の2つのNotion項目を `researchSeries`, `seriesRole` として返します。 `/repository/` は研究系列カードでの絞り込みと系列別の並び順を提供し、従来の分野別配色を維持します。未分類論文も「その他・未分類」から閲覧できます。
+
+研究体系の整理・位置づけは[Notionの研究体系ガイド](https://app.notion.com/41d515223974816fbea9f961a13a9a21)に記載。分類は研究計画上の体系で、査読済み・完成を意味しません。
+
 ## 開発・公開
 
 このプロジェクトは `wrangler.jsonc` を使用するCloudflare Workerです。認証済みの開発環境からリポジトリ直下で `npx wrangler deploy` を実行します。
