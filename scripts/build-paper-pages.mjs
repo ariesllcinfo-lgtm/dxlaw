@@ -9,6 +9,8 @@
 //   * 「公開可」列が存在しない場合、Notion が 400 を返し、このスクリプトは何も書かずに失敗する。
 //   * 公開可を外した論文のページは、次回ビルドで削除される（生成物の目印がある場合のみ）。
 //   * 本文は出力しない。書誌情報（題名・著者・日付・要旨・分類）だけを静的HTMLにする。
+//   * Notion本文へのリンクは既定で出さない（INCLUDE_NOTION_LINK=1 のときだけ出す）。
+//     リンク先が公開共有されていると、そこから全文が読めてしまうため。
 
 import {mkdir, readFile, readdir, rm, writeFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -106,7 +108,7 @@ function pageUrl(origin, id) {
   return origin ? `${origin}/repository/${encodeURIComponent(id)}/` : '';
 }
 
-export function renderPaperPage(paper, origin) {
+export function renderPaperPage(paper, origin, {notionLink = false} = {}) {
   const url = pageUrl(origin, paper.id);
   const date = paper.published || paper.modified;
   const description = paper.abstract || paper.subtitle || `${SITE_NAME}の論文書誌情報`;
@@ -173,7 +175,7 @@ export function renderPaperPage(paper, origin) {
     : '';
   const tags = paper.specialties.length
     ? `<ul class="tags" aria-label="専門領域">${paper.specialties.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>` : '';
-  const readLink = paper.notionUrl
+  const readLink = notionLink && paper.notionUrl
     ? `<p><a class="button" href="${escapeHtml(paper.notionUrl)}" rel="noopener noreferrer" target="_blank">本文をNotionで開く ↗</a></p>` : '';
 
   return `<!DOCTYPE html>
@@ -307,14 +309,14 @@ function parseArgs(argv) {
   return args;
 }
 
-export async function build({pages, publicDir, origin}) {
+export async function build({pages, publicDir, origin, notionLink = false}) {
   const {papers, skipped} = selectPublishable(pages);
   const outDir = path.join(publicDir, 'repository');
   await mkdir(outDir, {recursive: true});
   for (const paper of papers) {
     const dir = path.join(outDir, paper.id);
     await mkdir(dir, {recursive: true});
-    await writeFile(path.join(dir, 'index.html'), renderPaperPage(paper, origin));
+    await writeFile(path.join(dir, 'index.html'), renderPaperPage(paper, origin, {notionLink}));
   }
   const removed = await removeStalePages(outDir, new Set(papers.map(p => p.id)));
   if (origin) {
@@ -341,7 +343,7 @@ async function main() {
     if (!process.env.NOTION_TOKEN) throw new Error('NOTION_TOKEN is required (or use --fixture)');
     pages = await fetchFromNotion(process.env.NOTION_TOKEN);
   }
-  const result = await build({pages, publicDir, origin: rawOrigin});
+  const result = await build({pages, publicDir, origin: rawOrigin, notionLink: process.env.INCLUDE_NOTION_LINK === '1'});
   console.log(`generated ${result.papers.length} paper page(s): ${result.papers.map(p => p.id).join(', ') || '-'}`);
   if (result.removed.length) console.log('removed stale page(s): ' + result.removed.join(', '));
   for (const message of result.skipped) console.warn('skipped ' + message);

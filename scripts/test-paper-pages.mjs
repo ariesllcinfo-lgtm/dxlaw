@@ -45,6 +45,7 @@ for (const needle of [
   '<meta property="og:title"', '"@type": "ScholarlyArticle"', '"datePublished": "2026-11-01"',
   '<meta name="citation_keywords" content="法情報学">', 'href="/assets/paper-page.css"',
 ]) assert.ok(html.includes(needle), 'missing: ' + needle);
+assert.ok(!html.includes('notion.so') && !html.includes('notion.com'), 'Notionへのリンクは既定で出さない');
 assert.ok(!html.includes('cdn.tailwindcss.com') && !html.includes('fonts.googleapis.com'), '外部CDNを使わない');
 
 // 4. エスケープ（XSS）
@@ -56,6 +57,11 @@ const ld = JSON.parse(ldBlock);
 assert.equal(ld.headline, 'サンプル論文 </script><b>x</b> & "引用"', 'JSON-LDは元の値に復元できる');
 assert.equal(html.match(/<script/g).length, 1, 'scriptはJSON-LDの1つだけ');
 assert.equal(escapeHtml(`<>&"'`), '&lt;&gt;&amp;&quot;&#39;');
+
+// 4b. 明示したときだけNotionリンクを出す
+const withLink = await mkdtemp(path.join(os.tmpdir(), 'dxlaw-link-'));
+await build({pages: fixture, publicDir: withLink, origin, notionLink: true});
+assert.ok((await readFile(path.join(withLink, 'repository', 'PAP-0001', 'index.html'), 'utf8')).includes('https://www.notion.so/sample-pap-0001'));
 
 // 5. sitemap / robots
 const sitemap = await readFile(path.join(publicDir, 'sitemap.xml'), 'utf8');

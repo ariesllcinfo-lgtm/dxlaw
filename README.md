@@ -75,4 +75,6 @@ Notionに追加する列（任意の列は未設定でも動きます）：
 - `公開日`（日付・任意。なければ「最終更新日」を使用）
 - `著者`（テキスト・任意。なければ「安藤 和樹」）
 
+Notion本文へのリンクは既定で出しません（リンク先が公開共有されていると全文が読めるため）。出したい場合だけ `INCLUDE_NOTION_LINK=1` を付けます。
+
 `SITE_ORIGIN` を指定しない場合、canonical・sitemap・robots は出力しません。`NOTION_TOKEN` は読み取り専用の連携に限り、GitHub Actions の Secrets などに置いてください。
