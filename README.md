@@ -6,7 +6,7 @@ Cloudflare Workers Static Assets + Notion APIによる研究会ウェブサイ�
 
 - `/` — トップページ：研究理念、新着情報、各ページへの案内
 - `/research-program/` — 法情報学・計算法制度科学の統合研究プログラム。Notion研究計画の本文をAPI経由で表示（固定HTMLの二重管理はしない）
-- `/repository/` — 論文リポジトリ：Notionの「書籍種別：論文」だけを一覧表示し、背表紙からNotion原文を開く
+- `/repository/` — 公開論文リポジトリ。Notionで公開許可された「書籍種別：論文」のみ一覧表示。現在の棚のリンク先はNotionであり、静的個別ページへの切替はその生成機能がマージ・デプロイされた段階で実施
 - `/kazuki-ando/` — 安藤和樹：研究者プロフィール、研究関心、研究テーマ
 
 共通デザインは `public/assets/site.css`、共通動作は `public/assets/site.js` に配置。
@@ -15,7 +15,7 @@ Cloudflare Workers Static Assets + Notion APIによる研究会ウェブサイ�
 ## Notion連携
 
 - `/api/cms` — ニュース、スライド、プロフィール
-- `/api/papers` — 論文リポジトリ（分類が「論文」のレコードに限定）
+- `/api/papers` — 公開論文API。Notionの`書籍種別 = 論文`かつ`公開可 = ON`の両条件に該当するものだけを返す（検索・本棚も同条件）。公開用の`publicAbstract`は`公開要旨`からのみ取得し、`author`は未設定時に「安藤 和樹」、`publicationDate`は未設定時に「最終更新日」を使用
 - `/api/research-program` — 固定したNotion統合研究計画ページの本文ブロックを読み取り専用で取得。NOTION_TOKENはWorkerのシークレットに保持し、サイト画面は取得内容を安全にDOM表示。5分以内程度のキャッシュで更新反映
 
 API実装は `src/worker.js`。機密情報 `NOTION_TOKEN` はCloudflare Workerのシークレットで管理し、リポジトリには置かない。
@@ -56,3 +56,11 @@ GitHubの `.github/workflows/verify-paper-shelf.yml` はページ分離・JS構�
 両者は一体として扱います。公開コンテンツの正本は[Notionの統合研究計画](https://app.notion.com/p/41d515223974810b897cf2049d1a035d)です。/research-program/はWorkerの/api/research-programを通じてNotionブロックを描画し、サイト側に研究本文・詳細な日程表をハードコードしません。更新反映にはエッジキャッシュ分の遅延があり得ます。
 
 数理仕様はNotion「数理モデル v0.1」、実装・実証の研究質問や作業項目はノートで管理します。実装には固定的な月次・年次スケジュールを設定しません。取得エラー時は古い研究内容を偽って表示せず、同期エラーを明示します。
+
+## 論文の公開制御（2026-11-20）
+
+Notion「論文リポジトリ」の`公開可`は明示的な公開許可です。APIはフィルターと返却前の二重チェックを行い、未チェック・未定義・削除済みのレコードを除外します。全論文が未チェックなら、公開APIの`works`は空配列になります。
+
+公開手順：まず人手で公開用の`公開要旨`を記載し、公開対象のみ`公開可`をONにする。その後、サイト個別ページ生成のPRをマージし、Notionの読み取り用`NOTION_TOKEN`を適切に渡してビルド・デプロイする。トークンをソースやログへ出力しない。
+
+**注意**：現在の既定ブランチには`scripts/build-paper-pages.mjs`が存在しません。個別ページ生成のPR／ブランチが別にある場合、マージ後にその実装も上記の公開条件に一致することを確認してください。
