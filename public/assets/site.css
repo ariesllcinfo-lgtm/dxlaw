@@ -233,34 +233,35 @@ body {
     .mascot-section img { width:clamp(120px,20vw,210px); height:auto; object-fit:contain; flex:none; }
     @media(max-width:560px) { .mascot-section { gap:1rem; padding:1.5rem 1rem; } .mascot-section img { width:105px; } .mascot-copy p { font-size:.78rem; } }
   
-    /* Notion 専門領域による色分け：ここへ系統と色を追加できます。 */
-    .shelf-book.cover-admin { background-color:#49795b; background-blend-mode:multiply; }
-    .paper-swatch.swatch-admin { background:#49795b; }
-    .shelf-book.cover-finance { background-color:#273d5a; background-blend-mode:multiply; }
-    .paper-swatch.swatch-finance { background:#273d5a; }
-    .shelf-book.cover-medical { background-color:#844554; background-blend-mode:multiply; }
-    .paper-swatch.swatch-medical { background:#844554; }
-    .shelf-book.cover-info { background-color:#347276; background-blend-mode:multiply; }
-    .paper-swatch.swatch-info { background:#347276; }
-    .shelf-book.cover-civil { background-color:#82604d; background-blend-mode:multiply; }
-    .paper-swatch.swatch-civil { background:#82604d; }
-    .shelf-book.cover-economy { background-color:#897239; background-blend-mode:multiply; }
-    .paper-swatch.swatch-economy { background:#897239; }
-    .shelf-book.cover-literature { background-color:#6f5286; background-blend-mode:multiply; }
-    .paper-swatch.swatch-literature { background:#6f5286; }
-    .shelf-book.cover-maritime { background-color:#426780; background-blend-mode:multiply; }
-    .paper-swatch.swatch-maritime { background:#426780; }
-    .shelf-book.cover-labor { background-color:#945543; background-blend-mode:multiply; }
-    .paper-swatch.swatch-labor { background:#945543; }
-    .shelf-book.cover-history { background-color:#565f81; background-blend-mode:multiply; }
-    .paper-swatch.swatch-history { background:#565f81; }
-    .shelf-book.cover-other { background-color:#58636c; background-blend-mode:multiply; }
-    .paper-swatch.swatch-other { background:#58636c; }
+    /* Research-series colors: one cover color for each Notion research series. */
+    .shelf-book.cover-series-i { background-color:#283e60; background-blend-mode:multiply; }
+    .paper-swatch.swatch-series-i { background:#283e60; }
+    .shelf-book.cover-series-ii { background-color:#326a72; background-blend-mode:multiply; }
+    .paper-swatch.swatch-series-ii { background:#326a72; }
+    .shelf-book.cover-series-iii { background-color:#3d684e; background-blend-mode:multiply; }
+    .paper-swatch.swatch-series-iii { background:#3d684e; }
+    .shelf-book.cover-series-iv { background-color:#80444b; background-blend-mode:multiply; }
+    .paper-swatch.swatch-series-iv { background:#80444b; }
+    .shelf-book.cover-series-v { background-color:#8b702e; background-blend-mode:multiply; }
+    .paper-swatch.swatch-series-v { background:#8b702e; }
+    .shelf-book.cover-series-unclassified { background-color:#58636c; background-blend-mode:multiply; }
+    .paper-swatch.swatch-series-unclassified { background:#58636c; }
+    .paper-swatch.swatch-series-all { background:linear-gradient(135deg,#283e60 20%,#326a72 20% 40%,#3d684e 40% 60%,#80444b 60% 80%,#8b702e 80%); }
+    .paper-swatch.swatch-legal-informatics { background:#67518a; }
+    .legal-informatics-paper { border-left:4px solid #67518a !important; }
+    .research-series-card { border-left-width:4px; }
+    .research-series-card.series-card-series-i { border-left-color:#283e60; }
+    .research-series-card.series-card-series-ii { border-left-color:#326a72; }
+    .research-series-card.series-card-series-iii { border-left-color:#3d684e; }
+    .research-series-card.series-card-series-iv { border-left-color:#80444b; }
+    .research-series-card.series-card-series-v { border-left-color:#8b702e; }
+    .research-series-card.series-card-series-unclassified { border-left-color:#58636c; }
+    .research-series-card.series-card-series-all { border-left-color:#9a7b3e; }
     .paper-color-legend { display:flex; flex-wrap:wrap; gap:.45rem 1rem; padding:0 0 1rem; align-items:center; }
     .paper-color-legend span { display:inline-flex; gap:.35rem; align-items:center; white-space:nowrap; font-family:"Noto Serif JP",serif; font-size:10px; color:#6b645b; }
     .paper-swatch { display:inline-block; width:10px; height:10px; border:1px solid #ffffff88; box-shadow:0 0 0 1px #00000017; border-radius:2px; flex:none; }
   
-    /* A single continuous bookshelf, with adjacent books grouped by their discipline colours. */
+    /* A single continuous bookshelf with book colors grouped by the Notion research series. */
     .paper-shelf-controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:.6rem .8rem; }
     .paper-sort-select { padding:.48rem 2rem .48rem .65rem; min-height:36px; max-width:100%; font-family:"Noto Serif JP",serif; font-size:.75rem; border:1px solid #d9cdbb; border-radius:3px; background:#fff; color:#28394a; cursor:pointer; }
     .paper-sort-select:focus-visible { outline:2px solid #9a7b3e; outline-offset:2px; }
